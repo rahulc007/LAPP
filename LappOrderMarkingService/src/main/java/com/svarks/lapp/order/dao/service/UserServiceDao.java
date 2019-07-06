@@ -1,5 +1,7 @@
 package com.svarks.lapp.order.dao.service;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +23,5 @@ public interface UserServiceDao extends JpaRepository<UserEntity, Integer>{
 	 @Transactional
 	 @Modifying
 	 void resetNewPassword(@Param("emailId") String emailId, @Param("password") String password);
-	 UserEntity getUserByEmail(@Param("emailId") String emailId);
+	// List<UserEntity> getUserByEmail(@Param("emailId") String emailId);
 }

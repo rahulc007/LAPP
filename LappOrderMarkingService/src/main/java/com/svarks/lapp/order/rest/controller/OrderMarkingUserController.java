@@ -1,5 +1,7 @@
 package com.svarks.lapp.order.rest.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +31,7 @@ public class OrderMarkingUserController {
 	public BaseResponse testRestMessage() {
 		BaseResponse response = new BaseResponse();
 		response.setErrorMessage("No Error");
-		response.setStatusMessage("Spring Boot...!Rest Controller working fine..!");
+		response.setSuccessMessage("Spring Boot...!Rest Controller working fine..!");
 		response.setStatusMessage("success");
 		response.setStatus(200);
 		return response;
@@ -46,7 +48,10 @@ public class OrderMarkingUserController {
 	public LoginResponse validateUser(@RequestBody LoginRequest user) {
 		LoginResponse res = new LoginResponse();
 		try {
+			System.out.println("username==>"+user.getEmailId());
+			System.out.println("password==>"+user.getPassword());
 			UserEntity userentity = userService.findUserByCredentials(user.getEmailId(), user.getPassword());
+			System.out.println("userentity===>"+userentity);
                if(userentity != null && userentity.getEmailId() != null) {
             	   res.setStatus(200);
             	   res.setStatusMessage("success");

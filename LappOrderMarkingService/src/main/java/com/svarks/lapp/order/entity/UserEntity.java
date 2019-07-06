@@ -3,6 +3,7 @@ package com.svarks.lapp.order.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,7 +15,7 @@ import javax.transaction.Transactional;
 
 @Entity
 @Transactional
-@Table(name = "UserEntity")
+@Table(name = "user_entity")
 @NamedQueries({
 		@NamedQuery(name = "UserEntity.getUserByEmail", query = "SELECT e FROM UserEntity e WHERE e.emailId =:emailId "),
 		@NamedQuery(name = "UserEntity.findByEmailId", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM UserEntity e WHERE e.emailId =:emailId "),
@@ -29,13 +30,21 @@ public class UserEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private int uid;
+	//@Column(name = "email_id")
     private String emailId;
+	//@Column(name = "token")
     private String token;
+	//@Column(name = "password")
     private String password;
+   // @Column(name = "customer_id")
     private String customerId;
+    @Column(name = "utype")
     private int utype;
+    //@Column(name = "is_email_confirmed")
     private boolean isEmailConfirmed;
+   // @Column(name = "created_date", nullable = false)
     private Date createdDate;
+    //@Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 	public int getUid() {
 		return uid;
