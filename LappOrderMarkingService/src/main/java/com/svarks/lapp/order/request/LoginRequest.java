@@ -1,5 +1,7 @@
 package com.svarks.lapp.order.request;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 public class LoginRequest {
 	
 	private String emailId;
@@ -19,7 +21,8 @@ public class LoginRequest {
 	}
 	@Override
 	public String toString() {
-		return "LoginRequest [emailId=" + emailId + ", password=" + password + "]";
-	}
+	     return ReflectionToStringBuilder.toString(this);
+	 }
+
 
 }

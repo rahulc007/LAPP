@@ -13,6 +13,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 @Entity
 @Transactional
 @Table(name = "user_entity")
@@ -30,22 +32,17 @@ public class UserEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private int uid;
-	//@Column(name = "email_id")
     private String emailId;
-	//@Column(name = "token")
     private String token;
-	//@Column(name = "password")
     private String password;
-   // @Column(name = "customer_id")
     private String customerId;
-    @Column(name = "utype")
     private int utype;
-    //@Column(name = "is_email_confirmed")
     private boolean isEmailConfirmed;
-   // @Column(name = "created_date", nullable = false)
     private Date createdDate;
-    //@Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
+    private String countryCode;
+    private boolean isFirstTimeLogin;
+    
 	public int getUid() {
 		return uid;
 	}
@@ -103,11 +100,21 @@ public class UserEntity implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+	public String getCountryCode() {
+		return countryCode;
+	}
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
+	public boolean isFirstTimeLogin() {
+		return isFirstTimeLogin;
+	}
+	public void setFirstTimeLogin(boolean isFirstTimeLogin) {
+		this.isFirstTimeLogin = isFirstTimeLogin;
+	}
 	@Override
 	public String toString() {
-		return "UserEntity [uid=" + uid + ", emailId=" + emailId + ", token=" + token + ", password=" + password
-				+ ", customerId=" + customerId + ", utype=" + utype + ", isEmailConfirmed=" + isEmailConfirmed
-				+ ", createdDate=" + createdDate + ", modifiedDate=" + modifiedDate + "]";
-	}
+	     return ReflectionToStringBuilder.toString(this);
+	 }
 
 }

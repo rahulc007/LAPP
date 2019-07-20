@@ -16,11 +16,12 @@ CREATE TABLE IF NOT EXISTS `user_entity` (
   PRIMARY KEY (`uid`)
 );
 
-alter table `user_entity` add column `is_email_confirmed` varchar(1);
-
+alter table user_entity modify column uid int(11) not null AUTO_INCREMENT;
+alter table `user_entity` modify column `is_email_confirmed` varchar(1) default 0;
+alter table `user_entity` modify column `is_first_time_login` varchar(1) default 0;
 
 --ADMIN PASSWORD FOR FIRST TIME: lappadmin@123
 
-INSERT INTO user_entity (`email_id`, `password`,`token`,`customer_id`, `utype`,  `is_email_confirmed`,`created_date`, `modified_date`) VALUES 
-('admin@lapp.com', 'bGFwcGFkbWluQDEyMw==','21232f297a57a5a743894a0e4a801fc3','lappadmin', 1, 1,now(), now());
+INSERT INTO user_entity (`email_id`, `password`,`token`,`customer_id`, `utype`,  `is_email_confirmed`,`is_first_time_login`,`created_date`, `modified_date`) VALUES 
+('admin@lapp.com', 'bGFwcGFkbWluQDEyMw==','21232f297a57a5a743894a0e4a801fc3','lappadmin', 1, 1,0,now(), now());
 

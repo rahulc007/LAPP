@@ -1,0 +1,54 @@
+LOGIN API CALL REQUEST::
+------------------------
+
+METHOD: 	POST
+URL: 		http://localhost:8090/validateUser
+
+REQUEST PAYLOAD:
+----------------
+
+{
+"emailId":"admin@lapp.com",
+"password":"bGFwcGFkbWluQDEyMw=="
+	
+}
+
+
+ADMIN MODULE::
+-------------
+
+SAP FILE UPLOAD:
+
+METHOD: POST
+URL: http://localhost:8090/uploadSAPData
+
+REQUEST PAYLOAD:
+-----------------
+
+FORM DATA:
+orderData: EXCEL FILE
+
+
+CREATE NEW ADMIN
+----------------
+METHOD: POST
+URL: 
+
+REQUEST PAYLOAD::
+
+{
+"emailId":"axd",
+"firstname":"axd",
+"lastname":"axd",
+"consumerId":"axd",
+"country":"axd",
+"state":"axd",
+"city":"axd",
+"phonenumber":"axd"
+"userTYpe":2
+
+}
+
+
+USER MODULE::
+------------
