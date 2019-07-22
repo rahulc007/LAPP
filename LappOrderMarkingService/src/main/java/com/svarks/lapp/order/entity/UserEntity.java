@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @NamedQueries({
 		@NamedQuery(name = "UserEntity.getUserByEmail", query = "SELECT e FROM UserEntity e WHERE e.emailId =:emailId "),
 		@NamedQuery(name = "UserEntity.findByEmailId", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM UserEntity e WHERE e.emailId =:emailId "),
+		@NamedQuery(name = "UserEntity.findByCustId", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM UserEntity e WHERE e.customerId =:customerId "),
 		@NamedQuery(name = "UserEntity.updateIsEmailVerified", query = "UPDATE UserEntity e SET e.isEmailConfirmed =1 where e.emailId =:emailId "),
 		@NamedQuery(name = "UserEntity.findUserByCredentials", query = "SELECT e FROM UserEntity e WHERE e.emailId =:emailId AND e.password =:password AND e.isEmailConfirmed=true"),
 		@NamedQuery(name = "UserEntity.resetNewPassword", query = "UPDATE UserEntity e SET e.password =:password where e.emailId =:emailId ") })

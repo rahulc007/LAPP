@@ -16,6 +16,7 @@ public interface UserServiceDao extends JpaRepository<UserEntity, Integer>{
 
 	
 	 boolean findByEmailId(@Param("emailId") String emailId );
+	 boolean findByCustId(@Param("customerId") String customerId );
 	 @Transactional
 	 @Modifying
 	 void updateIsEmailVerified(@Param("emailId") String emailId);

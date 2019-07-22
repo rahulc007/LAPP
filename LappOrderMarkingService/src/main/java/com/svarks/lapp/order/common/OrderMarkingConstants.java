@@ -34,6 +34,15 @@ public interface OrderMarkingConstants {
 		String SUCCESS_MSG = "success";
 		String ERROR_MSG = "error";
 		String UNAUTHRORIZED_REQUEST="Un-Authorized request";
+		
+		String EMAIL_ALREADY_EXISTS = "EmailId  already exists..!";
+		String CUSTOMER_ID_EXISTS = "Customer ID already exists..!";
+		String RESUME_FILE_MANDATORY = "Please upload your resume";
+		String NETWORK_ISSUE = "Network error..! Please try after sometime";
+		String INSERT_SUCCESS = "Saved Successfully..!";
+		String LOGIN_ERROR = "EmailId or Password is incorrect";
+		String INVALID_USER = "Unauthorized request..!";
+		String EMAILCONFIRM = "Please verify your email address";
 	 
 	 //USER TYPE AND ROLRES
 	 

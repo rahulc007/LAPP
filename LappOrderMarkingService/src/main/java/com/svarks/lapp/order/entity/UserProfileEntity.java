@@ -1,9 +1,32 @@
-package com.svarks.lapp.order.request;
+package com.svarks.lapp.order.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
-public class NewUserRequest {
+@Entity
+@Transactional
+@Table(name = "user_profile")
+@NamedQueries({
+		@NamedQuery(name = "UserProfileEntity.getProfileByEmail", query = "SELECT e FROM UserProfileEntity e WHERE e.emailId =:emailId ")})
+
+public class UserProfileEntity implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private int pid;
 	private String emailId;
 	private String firstname;
 	private String lastname;
@@ -13,14 +36,12 @@ public class NewUserRequest {
 	private String city;
 	private String phonenumber;
 	private int userType;
-	private String countryCode;
 	
-	
-	public String getCountryCode() {
-		return countryCode;
+	public int getPid() {
+		return pid;
 	}
-	public void setCountryCode(String countryCode) {
-		this.countryCode = countryCode;
+	public void setPid(int pid) {
+		this.pid = pid;
 	}
 	public String getEmailId() {
 		return emailId;
@@ -76,7 +97,7 @@ public class NewUserRequest {
 	public void setUserType(int userType) {
 		this.userType = userType;
 	}
-	
+
 	@Override
 	public String toString() {
 	     return ReflectionToStringBuilder.toString(this);

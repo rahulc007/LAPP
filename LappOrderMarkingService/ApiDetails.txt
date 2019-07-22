@@ -29,10 +29,13 @@ FORM DATA:
 orderData: EXCEL FILE
 
 
-CREATE NEW ADMIN
-----------------
+CREATE NEW ADMIN or NEW CUSTOMER::
+---------------------------------
 METHOD: POST
-URL: 
+URL: http://localhost:8090/createUser
+
+If admin userType value=2 
+If customer userType value=1
 
 REQUEST PAYLOAD::
 
@@ -45,7 +48,8 @@ REQUEST PAYLOAD::
 "state":"axd",
 "city":"axd",
 "phonenumber":"axd"
-"userTYpe":2
+"userTYpe":2,
+"countryCode":"001"
 
 }
 
