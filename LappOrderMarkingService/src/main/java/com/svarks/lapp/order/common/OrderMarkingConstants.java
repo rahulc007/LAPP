@@ -35,7 +35,7 @@ public interface OrderMarkingConstants {
 		String ERROR_MSG = "error";
 		String UNAUTHRORIZED_REQUEST="Un-Authorized request";
 		
-		String EMAIL_ALREADY_EXISTS = "EmailId  already exists..!";
+		String EMAIL_ALREADY_EXISTS = "EmailId already exists..!";
 		String CUSTOMER_ID_EXISTS = "Customer ID already exists..!";
 		String RESUME_FILE_MANDATORY = "Please upload your resume";
 		String NETWORK_ISSUE = "Network error..! Please try after sometime";
@@ -49,4 +49,9 @@ public interface OrderMarkingConstants {
 	 int SUPER_ADMIN=1;
 	 int ADMIN=2;
 	 int CUSTOMER=3;
+	 
+	// CORS FILTERS
+		int MAX_AGE = 3600;
+		String CORS_ORIGINS = "*";
+		String CORS_HEADERS = "*";
 }

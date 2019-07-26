@@ -2,6 +2,7 @@ package com.svarks.lapp.order.rest.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import com.svarks.lapp.order.request.LoginRequest;
 import com.svarks.lapp.order.response.BaseResponse;
 import com.svarks.lapp.order.response.LoginResponse;
 
+@CrossOrigin(maxAge = OrderMarkingConstants.MAX_AGE)
 @RestController
 public class OrderMarkingUserController {
 	

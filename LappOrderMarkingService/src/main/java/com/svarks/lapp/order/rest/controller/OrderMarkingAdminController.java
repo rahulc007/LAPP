@@ -9,6 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +24,8 @@ import com.svarks.lapp.order.entity.UserProfileEntity;
 import com.svarks.lapp.order.request.NewUserRequest;
 import com.svarks.lapp.order.response.BaseResponse;
 
+
+@CrossOrigin(maxAge = OrderMarkingConstants.MAX_AGE)
 @RestController
 public class OrderMarkingAdminController {
 
@@ -94,13 +97,13 @@ public class OrderMarkingAdminController {
 				// validation
 
 				if (userService.findByEmailId(newUserRequest.getEmailId())) {
-					log.info("Emaild ID:" + newUserRequest.getEmailId() + " **Already Exists");
+					log.info("Emaild ID already Exists..!");
 					response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 					response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 					response.setErrorMessage(OrderMarkingConstants.EMAIL_ALREADY_EXISTS);
 					return response;
 				} else if (userService.findByCustId(newUserRequest.getConsumerId())) {
-					log.info("CUSTOMER ID:" + newUserRequest.getConsumerId() + " **Already Exists");
+					log.info("CUSTOMER ID: already Exists..!");
 					response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 					response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 					response.setErrorMessage(OrderMarkingConstants.CUSTOMER_ID_EXISTS);

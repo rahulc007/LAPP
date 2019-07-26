@@ -1,4 +1,4 @@
-package com.svarks.lapp;
+package com.svarks.lapp.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
