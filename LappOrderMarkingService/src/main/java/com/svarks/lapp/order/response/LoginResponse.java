@@ -5,6 +5,15 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 public class LoginResponse extends BaseResponse {
 	private int userType;
 	private boolean isFirstTimeLogin;
+	private String token;
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 
 	public int getUserType() {
 		return userType;

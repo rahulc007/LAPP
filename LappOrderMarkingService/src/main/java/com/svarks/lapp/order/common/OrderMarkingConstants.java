@@ -4,7 +4,7 @@ public interface OrderMarkingConstants {
 	
 	
 	//BASE PACKAGE
-	 String BASE_PACKAGE_NAME="com.svarks.lapp.order";
+	 String BASE_PACKAGE_NAME="com.svarks.lapp.*";
 	 String ENTITY_PACKAGE="com.svarks.lapp.order.entity";
 	 String APPLICATION_JSON = "application/json";
 	 
@@ -15,6 +15,8 @@ public interface OrderMarkingConstants {
 	 String UPLOAD_SAP_DATA="/uploadSAPData";
 	 String CREATE_NEW_USER="/createUser";
 	 String FORGOT_PASSWORD_API = "/forgotPassword";
+	 String GET_SAP_FILE_DETAILS="/getSapFileInfo";
+	 String GET_ALL_USER_DETAILS="/getAllUserDetails";
 	 
 	 
 	// EMAIL SUBJECT

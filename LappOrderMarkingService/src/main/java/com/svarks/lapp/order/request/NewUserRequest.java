@@ -14,6 +14,7 @@ public class NewUserRequest {
 	private String phonenumber;
 	private int userType;
 	private String countryCode;
+	private String createdBy;
 	
 	
 	public String getCountryCode() {
@@ -76,7 +77,12 @@ public class NewUserRequest {
 	public void setUserType(int userType) {
 		this.userType = userType;
 	}
-	
+	public String getCreatedBy() {
+		return createdBy;
+	}
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 	@Override
 	public String toString() {
 	     return ReflectionToStringBuilder.toString(this);

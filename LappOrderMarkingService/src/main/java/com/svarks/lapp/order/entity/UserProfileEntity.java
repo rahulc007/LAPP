@@ -1,6 +1,7 @@
 package com.svarks.lapp.order.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,6 +37,9 @@ public class UserProfileEntity implements Serializable {
 	private String city;
 	private String phonenumber;
 	private int userType;
+	private String createdBy;
+	private Date createdDate;
+	private Date modifiedDate;
 	
 	public int getPid() {
 		return pid;
@@ -97,7 +101,24 @@ public class UserProfileEntity implements Serializable {
 	public void setUserType(int userType) {
 		this.userType = userType;
 	}
-
+	public String getCreatedBy() {
+		return createdBy;
+	}
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+	public Date getModifiedDate() {
+		return modifiedDate;
+	}
+	public void setModifiedDate(Date modifiedDate) {
+		this.modifiedDate = modifiedDate;
+	}
 	@Override
 	public String toString() {
 	     return ReflectionToStringBuilder.toString(this);

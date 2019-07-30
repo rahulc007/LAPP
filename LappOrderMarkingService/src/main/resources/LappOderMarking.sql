@@ -25,6 +25,6 @@ alter table `user_entity` modify column `is_first_time_login` varchar(1) default
 INSERT INTO user_entity (`email_id`, `password`,`token`,`customer_id`, `utype`,  `is_email_confirmed`,`is_first_time_login`,`created_date`, `modified_date`) VALUES 
 ('admin@lapp.com', 'bGFwcGFkbWluQDEyMw==','21232f297a57a5a743894a0e4a801fc3','lappadmin', 1, 1,0,now(), now());
 
-
+update user_entity set country_code=0;
 
 alter table user_profile modify column pid int(11) not null AUTO_INCREMENT;

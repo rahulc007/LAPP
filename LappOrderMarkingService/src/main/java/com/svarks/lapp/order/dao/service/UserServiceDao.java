@@ -20,9 +20,10 @@ public interface UserServiceDao extends JpaRepository<UserEntity, Integer>{
 	 @Transactional
 	 @Modifying
 	 void updateIsEmailVerified(@Param("emailId") String emailId);
-	 UserEntity findUserByCredentials(@Param("emailId") String emailId, @Param("password") String password);
+	 UserEntity findUserByCredentials(@Param("emailId") String emailId, @Param("password") String password ,@Param("countryCode")String countryCode);
 	 @Transactional
 	 @Modifying
 	 void resetNewPassword(@Param("emailId") String emailId, @Param("password") String password);
+	 UserEntity findUserByCustomerId(@Param("customerId") String emailId, @Param("password") String password ,@Param("countryCode")String countryCode);
 	// List<UserEntity> getUserByEmail(@Param("emailId") String emailId);
 }

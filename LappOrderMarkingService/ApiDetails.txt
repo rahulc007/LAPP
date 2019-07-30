@@ -1,3 +1,12 @@
+
+----------------------------------------
+
+
+LAST UPDATED BY: 30th JULY 2019
+
+----------------------------------------
+
+
 LOGIN API CALL REQUEST::
 ------------------------
 
@@ -9,15 +18,18 @@ REQUEST PAYLOAD:
 
 {
 "emailId":"admin@lapp.com",
-"password":"bGFwcGFkbWluQDEyMw=="
+"password":"bGFwcGFkbWluQDEyMw==",
+"countryCode":"0"
 	
 }
 
-
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ADMIN MODULE::
--------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 SAP FILE UPLOAD:
+----------------
 
 METHOD: POST
 URL: http://localhost:8090/uploadSAPData
@@ -26,6 +38,7 @@ REQUEST PAYLOAD:
 -----------------
 
 FORM DATA:
+emailId:username
 orderData: EXCEL FILE
 
 
@@ -36,6 +49,14 @@ URL: http://localhost:8090/createUser
 
 If admin userType value=2 
 If customer userType value=1
+
+
+TO GET ALL FILE UPLOADED INFOMATION::
+-------------------------------------
+
+http://localhost:8090/getSapFileInfo/
+
+
 
 REQUEST PAYLOAD::
 
@@ -49,10 +70,20 @@ REQUEST PAYLOAD::
 "city":"axd",
 "phonenumber":"axd"
 "userTYpe":2,
+"createdBy":"user_emailID",
 "countryCode":"001"
 
 }
 
 
+
+TO GET ALL USER CREATION INFOMATION::
+-------------------------------------
+
+http://localhost:8090/getAllUserDetails/
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 USER MODULE::
-------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
