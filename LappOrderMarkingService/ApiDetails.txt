@@ -2,7 +2,7 @@
 ----------------------------------------
 
 
-LAST UPDATED BY: 30th JULY 2019
+LAST UPDATED BY: 2nd AUG 2019
 
 ----------------------------------------
 
@@ -79,9 +79,24 @@ REQUEST PAYLOAD::
 
 TO GET ALL USER CREATION INFOMATION::
 -------------------------------------
+METHOD: GET
+URL: http://localhost:8090/getAllUserDetails/
 
-http://localhost:8090/getAllUserDetails/
 
+
+TO UPDATE NEW PASSWORD IN AMDIN/SUPERAMDIN::
+--------------------------------------------
+
+METHOD:POST
+URL: http://localhost:8090/resetPassword/
+
+REQUEST PAYLOAD:
+{
+"emailId":"id",
+"oldPassword":"base64 encry",
+"newPassword":"base64 ebcrt",
+"countryCode":""
+}
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@ public interface OrderMarkingConstants {
 	 String FORGOT_PASSWORD_API = "/forgotPassword";
 	 String GET_SAP_FILE_DETAILS="/getSapFileInfo";
 	 String GET_ALL_USER_DETAILS="/getAllUserDetails";
+	 String RESET_PASSWORD_API = "/resetPassword";
 	 
 	 
 	// EMAIL SUBJECT
@@ -24,6 +25,7 @@ public interface OrderMarkingConstants {
 		String VERIFY_EMAIL_SUBJECT = "Verify your email account";
 		String USER_CREDENTIALS = "OPT NAUKRI LOGIN DEAILS";
 		String FORGOT_PASSWORD_EMAIL_SUBJECT = "Forgot Password..!";
+		String INAVLID_USER="Unauthorized request..!";
 		
 		
 		// ERROR CODE
