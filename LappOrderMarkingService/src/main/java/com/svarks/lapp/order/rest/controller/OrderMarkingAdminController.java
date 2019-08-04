@@ -151,7 +151,7 @@ public class OrderMarkingAdminController {
 
 				// USER LOGIN CREATION DONE
 				UserEntity user = convertNewUserDtoToEntity(newUserRequest);
-				String pwd=getAlphaNumericString(6, newUserRequest.getEmailId())
+				String pwd=getAlphaNumericString(6, newUserRequest.getEmailId());
 				user.setPassword(getBase64EncryptionPwd(pwd));
 				userService.save(user);
 
