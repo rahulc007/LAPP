@@ -24,28 +24,9 @@ REQUEST PAYLOAD:
 }
 
 FORGOT PASSWORD:
------------------
-
-Method: POST
-URL: http://localhost:8090/forgotPassword
 
 {
-"emailId":"emailid"
-}
-
-ON CLICK OF MAIL IN FORGOT PASSWORD LINK
-
-RESET PASSWORD LINK FOR FORGOTPASSWORD:
------------------------------------------
-
-Method: POST
-URL: http://localhost:8090/updatePwd
-
-{
-"emailId":"emailid",
-"password":"base64pwd"
-}
-
+"
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ADMIN MODULE::

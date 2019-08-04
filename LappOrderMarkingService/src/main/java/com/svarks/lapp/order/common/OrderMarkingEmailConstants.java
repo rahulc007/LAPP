@@ -18,4 +18,18 @@ public interface OrderMarkingEmailConstants {
 		 String S3_CLOUDFRONT_LOGO = "https://s3.amazonaws.com/optnaukri-devprofile/lapp_logo.png";
 		 String S3_CLOUD_BANNER = "https://s3.amazonaws.com/optnaukri-devprofile/banner.png";
 
+		 
+		 String EMAIL_USER_ID="noreplysvarks@gmail.com";
+		 String EMAIL_AUTHENTICATION="Svarks@123";
+		 
+		 String SMTP_ENABLE="mail.smtp.starttls.enable";
+		 String SMTP_HOST="mail.smtp.host";
+		 String SMTP_PORT="mail.smtp.port";
+		 String SMTP_HOST_VALUE="smtp.gmail.com";
+		 String SMPT_PORT_VALUE="587";
+		 
+		 String FORGOT_PASSWORD_SUBJECT="Lapp OrderMarking Forgot Password Notification..!";
+		 String FORGOT_PASSWORD_CONTENT="Seems like you forgot your password lapp order marking application.If this is true,Click the below to reset your password";
+		 String FORGOT_PASSWORD_BUTTON="Reset My Password";
+		 String FORGOT_PASSWORD_URL="http://3.17.182.133:8080/forgot-password?emailId=";
 }

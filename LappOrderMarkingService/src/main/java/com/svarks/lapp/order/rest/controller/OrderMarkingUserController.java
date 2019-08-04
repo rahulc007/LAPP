@@ -21,6 +21,7 @@ import com.svarks.lapp.order.entity.UserAuthInfo;
 import com.svarks.lapp.order.entity.UserEntity;
 import com.svarks.lapp.order.request.ForgotPasswordRequest;
 import com.svarks.lapp.order.request.LoginRequest;
+import com.svarks.lapp.order.request.ResetPasswordRequest;
 import com.svarks.lapp.order.request.UpdatePasswordRequest;
 import com.svarks.lapp.order.response.BaseResponse;
 import com.svarks.lapp.order.response.LoginResponse;
@@ -56,9 +57,9 @@ public class OrderMarkingUserController {
 		response.setStatus(200);
 		MailerRequest mailRequest = new MailerRequest();
 		mailRequest.setButtonName("Login");
-		mailRequest.setTo("rajesh.svarks@gmaill.com");
+		mailRequest.setTo("rajeshsavi123@gmail.com");
 		mailRequest.setLabel1("Username:");
-		mailRequest.setP1("rajeshsavi123@gmaill.com");
+		mailRequest.setP1("rajeshsavi123@gmail.com");
 		mailRequest.setSubject(OrderMarkingEmailConstants.REGISTER_SUCCESS_SUBJECT);
 		mailRequest.setLabel2("Password:");
 		mailRequest.setP2("lapp@1123");
@@ -153,6 +154,37 @@ public class OrderMarkingUserController {
 		}
 		return res;
 	}
+	
+	
+	/**
+	 * Method is used to create a new password when user forgot old password
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@PostMapping(value = OrderMarkingConstants.UPDATE_PASSWORD_API, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public BaseResponse updateNewpassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		LoginResponse res = new LoginResponse();
+		try {
+			boolean user = userService.findByEmailId(resetPasswordRequest.getEmailId());
+			if (user) {
+				userService.resetNewPassword(resetPasswordRequest.getEmailId(), resetPasswordRequest.getPassword());
+				res.setSuccessMessage(OrderMarkingConstants.SUCCESS_MSG);
+				res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+				res.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			} else {
+				res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+				res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+				res.setErrorMessage(OrderMarkingConstants.INVALID_USER);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			res.setStatus(OrderMarkingConstants.INTERNAL_SERVER_ERROR);
+		}
+		return res;
+	}
 
 	
 	
@@ -170,8 +202,14 @@ public class OrderMarkingUserController {
 			if (userService.findByEmailId(forgotPassword.getEmailId())) {
 				
 				//Send email
-				/*employeeFeedbackService.sendForgotPasswordHtmlMail(forgotPassword.getEmailId().split("@")[0],
-						forgotPassword.getEmailId(), OrderMarkingConstants.FORGOT_PASSWORD_EMAIL_SUBJECT);*/
+				MailerRequest mailRequest = new MailerRequest();
+				mailRequest.setButtonName(OrderMarkingEmailConstants.FORGOT_PASSWORD_BUTTON);
+				mailRequest.setP(OrderMarkingEmailConstants.FORGOT_PASSWORD_CONTENT);
+				mailRequest.setName(forgotPassword.getEmailId());
+				mailRequest.setSubject(OrderMarkingEmailConstants.FORGOT_PASSWORD_SUBJECT);
+				mailRequest.setUrl(OrderMarkingEmailConstants.FORGOT_PASSWORD_URL+forgotPassword.getEmailId());
+				mailRequest.setTo(forgotPassword.getEmailId());
+				emailService.sendMail(mailRequest);
 				res.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 				res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			} else {

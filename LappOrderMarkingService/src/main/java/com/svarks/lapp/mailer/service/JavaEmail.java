@@ -10,58 +10,67 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
 
-@Service
-public class EmailService {
-
-	private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+public class JavaEmail {
 
 	Properties emailProperties;
 	Session mailSession;
 	MimeMessage emailMessage;
 
-	
+	public static void main(String args[]) throws AddressException,
+			MessagingException {
 
-	public void sendMail(MailerRequest mailRequest) {
-		
-		try {
+		JavaEmail javaEmail = new JavaEmail();
 
-			setMailServerProperties();
-			createEmailMessage(mailRequest);
-			sendEmail();
-			
-		}catch(Exception e) {
-			
-		}
-		
-		
+		javaEmail.setMailServerProperties();
+		javaEmail.createEmailMessage();
+		javaEmail.sendEmail();
 	}
-	
-	public void createEmailMessage(MailerRequest mailRequest) throws AddressException,
-	MessagingException {
+
+	public void setMailServerProperties() {
+
+		String emailPort = "587";//gmail's smtp port
+
+		emailProperties = System.getProperties();
+		emailProperties.put("mail.smtp.port", emailPort);
+		emailProperties.put("mail.smtp.auth", "true");
+		emailProperties.put("mail.smtp.starttls.enable", "true");
+
+	}
+
+	public void createEmailMessage() throws AddressException,
+			MessagingException {
+		String[] toEmails = { "sanjay.svarks@gmail.com"};
+		String emailSubject = OrderMarkingEmailConstants.REGISTER_SUCCESS_SUBJECT;
+		//String emailBody = "This is an email sent by JavaMail api.";
 
 		mailSession = Session.getDefaultInstance(emailProperties, null);
 		emailMessage = new MimeMessage(mailSession);
-		
-		/*for (int i = 0; i < toEmails.length; i++) {
+
+		for (int i = 0; i < toEmails.length; i++) {
 			emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmails[i]));
 		}
-		*/
-		
-		emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(mailRequest.getTo()));
-		emailMessage.setSubject(mailRequest.getSubject());
+
+		emailMessage.setSubject(emailSubject);
 		//emailMessage.setContent(emailBody, "text/html");//for a html email
 		//emailMessage.setText(emailBody);// for a text email
-			emailMessage.setContent(generateHtmlEmailBody(mailRequest), "text/html");
+		
+		 MailerRequest mailRequest = new MailerRequest();
+         mailRequest.setButtonName("Login");
+ 		mailRequest.setTo("rajesh.svarks@gmaill.com");
+ 		mailRequest.setLabel1("Username:");
+ 		mailRequest.setP1("rajeshsavi123@gmaill.com");
+ 		mailRequest.setSubject(OrderMarkingEmailConstants.REGISTER_SUCCESS_SUBJECT);
+ 		mailRequest.setLabel2("Password:");
+ 		mailRequest.setP2("lapp@1123");
+ 		mailRequest.setP("Your registration has been completed successfully..! Please find the login credentials below");
+ 		mailRequest.setUrl("http://3.17.182.133:8080");
+ 		mailRequest.setName("Rajesh Gowda");
+ 		emailMessage.setContent(generateHtmlEmailBody(mailRequest), "text/html");
 
-}
-	
-	
+	}
+
 	public void sendEmail() throws AddressException, MessagingException {
 
 		String emailHost = "smtp.gmail.com";
@@ -73,46 +82,19 @@ public class EmailService {
 		transport.connect(emailHost, fromUser, fromUserEmailPassword);
 		transport.sendMessage(emailMessage, emailMessage.getAllRecipients());
 		transport.close();
-		log.info("Email sent successfully.");
+		System.out.println("Email sent successfully.");
 	}
 	
-	public void setMailServerProperties() {
-
-		String emailPort = "587";//gmail's smtp port
-
-		emailProperties = System.getProperties();
-		emailProperties.put("mail.smtp.port", emailPort);
-		emailProperties.put("mail.smtp.auth", "true");
-		emailProperties.put("mail.smtp.starttls.enable", "true");
-
-	}
 	
-	/*public void sendMail(MailerRequest mailRequest) {
-		try {
-			MimeMessage mail = sender.createMimeMessage();
-			String body = generateHtmlEmailBody(mailRequest);// templateEngine.process(templateName, context);
-			MimeMessageHelper helper = new MimeMessageHelper(mail, true);
-			helper.setFrom("rajeshsavi123@gmail.com", "LAPP ORDER");
-
-			helper.setTo(mailRequest.getTo());
-			helper.setSubject(mailRequest.getSubject());
-			helper.setText(body, true);
-			sender.send(mail);
-			log.info("****MAIL SENT SUCCESSFULLY****:");
-		} catch (Exception e) {
-			log.info("Error while sending mail==>" + e);
-			log.info("Failed to send email=>" + mailRequest.getTo());
-
-		}
-
-	}
-
-*/
-	private String generateHtmlEmailBody(MailerRequest mailRequest) {
+	
+	private static String generateHtmlEmailBody(MailerRequest mailRequest) {
 		String mailBody = "";
 
-		mailBody += "<!doctype html>";
-		mailBody += "<html lang='en'>";
+		/*mailBody += "<!doctype html>";
+		mailBody += "<html lang='en'>";*/
+		
+	//	mailBody += "<!doctype html>";
+		mailBody += "<html>";
 
 		mailBody += "<head>";
 		mailBody += "<meta charset='utf-8'>";
@@ -158,7 +140,7 @@ public class EmailService {
 		mailBody += "<td colspan='2'>";
 		mailBody += "<!-- header start -->";
 		mailBody += "<br/><p style='width: 100%;margin: 0;padding: 0;'>";
-		mailBody += " Hi <b>"+mailRequest.getName()+",</b>";
+		mailBody += " Hi <b>"+mailRequest.getName()+"</b>";
 		mailBody += "</p>";
 		mailBody += "<!-- header end -->";
 		mailBody += "<br/>";

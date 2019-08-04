@@ -1,118 +1,106 @@
 package com.svarks.lapp.mailer.service;
 
-import java.util.Properties;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import java.util.*;
+import javax.mail.*;
+import javax.mail.internet.*;
 
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
 
-@Service
-public class EmailService {
 
-	private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+public class SendMail {
 
-	Properties emailProperties;
-	Session mailSession;
-	MimeMessage emailMessage;
+	public static void main(String[] args) {
 
-	
-
-	public void sendMail(MailerRequest mailRequest) {
 		
-		try {
+		  // Recipient's email ID needs to be mentioned.
+        String to = "sanjay.svarks@gmail.com";
 
-			setMailServerProperties();
-			createEmailMessage(mailRequest);
-			sendEmail();
-			
-		}catch(Exception e) {
-			
-		}
-		
-		
-	}
-	
-	public void createEmailMessage(MailerRequest mailRequest) throws AddressException,
-	MessagingException {
+        // Sender's email ID needs to be mentioned
+        String from = "noreplysvarks@gmail.com";
 
-		mailSession = Session.getDefaultInstance(emailProperties, null);
-		emailMessage = new MimeMessage(mailSession);
-		
-		/*for (int i = 0; i < toEmails.length; i++) {
-			emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmails[i]));
-		}
-		*/
-		
-		emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(mailRequest.getTo()));
-		emailMessage.setSubject(mailRequest.getSubject());
-		//emailMessage.setContent(emailBody, "text/html");//for a html email
-		//emailMessage.setText(emailBody);// for a text email
-			emailMessage.setContent(generateHtmlEmailBody(mailRequest), "text/html");
 
-}
-	
-	
-	public void sendEmail() throws AddressException, MessagingException {
+        // Get system properties
+        Properties properties = System.getProperties();
 
-		String emailHost = "smtp.gmail.com";
-		String fromUser = "noreplysvarks@gmail.com";//just the id alone without @gmail.com
-		String fromUserEmailPassword = "Svarks@123";
+        properties.put("mail.smtp.starttls.enable", "true"); 
+        properties.put("mail.smtp.host", "smtp.gmail.com");
 
-		Transport transport = mailSession.getTransport("smtp");
+        properties.put("mail.smtp.port", "587");
+        properties.put("mail.smtp.auth", "true");
+        Authenticator authenticator = new Authenticator () {
+              public PasswordAuthentication getPasswordAuthentication(){
+                  return new PasswordAuthentication("noreplysvarks@gmail.com","Svarks@123");//userid and password for "from" email address 
+              }
+          };
 
-		transport.connect(emailHost, fromUser, fromUserEmailPassword);
-		transport.sendMessage(emailMessage, emailMessage.getAllRecipients());
-		transport.close();
-		log.info("Email sent successfully.");
-	}
-	
-	public void setMailServerProperties() {
+          Session session = Session.getDefaultInstance( properties , authenticator);  
+        try{
+           // Create a default MimeMessage object.
+           MimeMessage message = new MimeMessage(session);
 
-		String emailPort = "587";//gmail's smtp port
+           // Set From: header field of the header.
+           message.setFrom(new InternetAddress(from));
 
-		emailProperties = System.getProperties();
-		emailProperties.put("mail.smtp.port", emailPort);
-		emailProperties.put("mail.smtp.auth", "true");
-		emailProperties.put("mail.smtp.starttls.enable", "true");
+           // Set To: header field of the header.
+           message.addRecipient(Message.RecipientType.TO,
+                                    new InternetAddress(to));
 
-	}
-	
-	/*public void sendMail(MailerRequest mailRequest) {
-		try {
-			MimeMessage mail = sender.createMimeMessage();
-			String body = generateHtmlEmailBody(mailRequest);// templateEngine.process(templateName, context);
-			MimeMessageHelper helper = new MimeMessageHelper(mail, true);
-			helper.setFrom("rajeshsavi123@gmail.com", "LAPP ORDER");
+           // Set Subject: header field
+           message.setSubject("This is the Subject Line!");
 
-			helper.setTo(mailRequest.getTo());
-			helper.setSubject(mailRequest.getSubject());
-			helper.setText(body, true);
-			sender.send(mail);
-			log.info("****MAIL SENT SUCCESSFULLY****:");
-		} catch (Exception e) {
-			log.info("Error while sending mail==>" + e);
-			log.info("Failed to send email=>" + mailRequest.getTo());
+           // Now set the actual message
+         //  message.setText("This is actual message");
+           
+        // Send the actual HTML message, as big as you like
+           MailerRequest mailRequest = new MailerRequest();
+           mailRequest.setButtonName("Login");
+   		mailRequest.setTo("rajesh.svarks@gmaill.com");
+   		mailRequest.setLabel1("Username:");
+   		mailRequest.setP1("rajeshsavi123@gmaill.com");
+   		mailRequest.setSubject(OrderMarkingEmailConstants.REGISTER_SUCCESS_SUBJECT);
+   		mailRequest.setLabel2("Password:");
+   		mailRequest.setP2("lapp@1123");
+   		mailRequest.setP("Your registration has been completed successfully..! Please find the login credentials below");
+   		mailRequest.setUrl("http://3.17.182.133:8080");
+   		mailRequest.setName("Rajesh Gowda");
+    	   message.setContent(generateHtmlEmailBody(mailRequest), "text/html");
 
-		}
+           // Send message
+           Transport.send(message);
+           System.out.println("Sent message successfully....");
+        }catch (MessagingException mex) {
+           mex.printStackTrace();
+        }
+        
+        
+        
+        
+        
+        
+     /*   Properties properties = System.getProperties();
 
+        properties.put(OrderMarkingEmailConstants.SMTP_ENABLE, "true"); 
+        properties.put(OrderMarkingEmailConstants.SMTP_HOST, OrderMarkingEmailConstants.SMTP_HOST_VALUE);
+
+        properties.put(OrderMarkingEmailConstants.SMTP_PORT,OrderMarkingEmailConstants.SMPT_PORT_VALUE);
+        properties.put("mail.smtp.auth", "true");
+        Authenticator authenticator = new Authenticator () {
+              public PasswordAuthentication getPasswordAuthentication(){
+                  return new PasswordAuthentication(OrderMarkingEmailConstants.EMAIL_USER_ID,OrderMarkingEmailConstants.EMAIL_AUTHENTICATION);//userid and password for "from" email address 
+              }
+          };*/
 	}
 
-*/
-	private String generateHtmlEmailBody(MailerRequest mailRequest) {
+	
+	private static String generateHtmlEmailBody(MailerRequest mailRequest) {
 		String mailBody = "";
 
-		mailBody += "<!doctype html>";
-		mailBody += "<html lang='en'>";
+		/*mailBody += "<!doctype html>";
+		mailBody += "<html lang='en'>";*/
+		
+	//	mailBody += "<!doctype html>";
+		mailBody += "<html>";
 
 		mailBody += "<head>";
 		mailBody += "<meta charset='utf-8'>";
@@ -158,7 +146,7 @@ public class EmailService {
 		mailBody += "<td colspan='2'>";
 		mailBody += "<!-- header start -->";
 		mailBody += "<br/><p style='width: 100%;margin: 0;padding: 0;'>";
-		mailBody += " Hi <b>"+mailRequest.getName()+",</b>";
+		mailBody += " Hi <b>"+mailRequest.getName()+"</b>";
 		mailBody += "</p>";
 		mailBody += "<!-- header end -->";
 		mailBody += "<br/>";

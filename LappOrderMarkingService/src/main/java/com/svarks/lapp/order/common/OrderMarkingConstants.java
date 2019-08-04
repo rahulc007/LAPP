@@ -18,6 +18,7 @@ public interface OrderMarkingConstants {
 	 String GET_SAP_FILE_DETAILS="/getSapFileInfo";
 	 String GET_ALL_USER_DETAILS="/getAllUserDetails";
 	 String RESET_PASSWORD_API = "/resetPassword";
+	 String UPDATE_PASSWORD_API = "/updatePwd";
 	 
 	 
 	// EMAIL SUBJECT

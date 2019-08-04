@@ -28,6 +28,7 @@ import com.svarks.lapp.order.entity.UserEntity;
 import com.svarks.lapp.order.entity.UserProfileEntity;
 import com.svarks.lapp.order.request.NewUserRequest;
 import com.svarks.lapp.order.response.BaseResponse;
+import com.svarks.lapp.order.response.NewUserResponse;
 import com.svarks.lapp.order.response.SAPFileInfoResponse;
 import com.svarks.lapp.order.response.UserCreationResponse;
 
@@ -150,7 +151,8 @@ public class OrderMarkingAdminController {
 
 				// USER LOGIN CREATION DONE
 				UserEntity user = convertNewUserDtoToEntity(newUserRequest);
-				user.setPassword(getBase64EncryptionPwd(newUserRequest.getEmailId()));
+				String pwd=getAlphaNumericString(6, newUserRequest.getEmailId())
+				user.setPassword(getBase64EncryptionPwd(pwd));
 				userService.save(user);
 
 				// USER PROFILE ADDITION
@@ -159,7 +161,7 @@ public class OrderMarkingAdminController {
 
 				// send mail logic
 
-				//emailService.sendMail(sendCredentialsMail(newUserRequest));
+				emailService.sendMail(sendCredentialsMail(newUserRequest,pwd));
 
 				// Set success response
 				response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
@@ -204,7 +206,7 @@ public class OrderMarkingAdminController {
 		response.setUserProfileList(profileService.findAll());
 		return response;
 	}
-	private MailerRequest sendCredentialsMail(NewUserRequest newUserRequest) {
+	private MailerRequest sendCredentialsMail(NewUserRequest newUserRequest,String pwd) {
 		MailerRequest mailRequest = new MailerRequest();
 		mailRequest.setButtonName(OrderMarkingEmailConstants.LOGIN_BUTTON);
 		mailRequest.setName(newUserRequest.getFirstname());
@@ -215,7 +217,7 @@ public class OrderMarkingAdminController {
 		mailRequest.setLabel1(OrderMarkingEmailConstants.USERNAME);
 		mailRequest.setP1(newUserRequest.getEmailId());
 		mailRequest.setLabel2(OrderMarkingEmailConstants.PASSWORD);
-		mailRequest.setP2(getAlphaNumericString(6, newUserRequest.getEmailId()));
+		mailRequest.setP2(pwd);
 		return mailRequest;
 	}
 
@@ -251,7 +253,7 @@ public class OrderMarkingAdminController {
 	}
 
 	private String getBase64EncryptionPwd(String str) {
-		return Base64.getEncoder().encodeToString(getAlphaNumericString(6, str).getBytes());
+		return Base64.getEncoder().encodeToString(str.getBytes());
 	}
 
 	/*
