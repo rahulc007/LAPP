@@ -17,10 +17,11 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @Entity
 @Transactional
 @Table(name = "SAP_file_info")
-/*@NamedQueries({
-		@NamedQuery(name = "SAPFileInfo.getUserByEmail", query = "SELECT e FROM UserEntity e WHERE e.emailId =:emailId "),
-		@NamedQuery(name = "SAPFileInfo.resetNewPassword", query = "UPDATE UserEntity e SET e.password =:password where e.emailId =:emailId ") })
-*/
+@NamedQueries({
+		@NamedQuery(name = "SAPFileInfo.findByFileName", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM SAPFileInfo e WHERE e.fileName =:fileName "),
+		@NamedQuery(name = "SAPFileInfo.getSAPDataByUser", query = "SELECT u FROM SAPFileInfo u where u.uploadedBy=:uploadedBy "),
+		@NamedQuery(name = "SAPFileInfo.updateName", query = "UPDATE SAPFileInfo e SET e.fileName =:fileName where e.fileId =:fileId ") })
+
 public class SAPFileInfo implements Serializable {
 
 	
@@ -33,11 +34,27 @@ public class SAPFileInfo implements Serializable {
 	private int orderCount;
 	private int orderItemCount;
 	private String contentType;
+	private int fileStatus;
+	private String filePath;
 	private String uploadedBy;
 	private Date createdDate;
 	private Date modifiedDate;
 	
 	
+	
+	
+	public String getFilePath() {
+		return filePath;
+	}
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+	public void setFileId(int fileId) {
+		this.fileId = fileId;
+	}
+	public int getFileId() {
+		return fileId;
+	}
 	public String getUploadedBy() {
 		return uploadedBy;
 	}
@@ -85,6 +102,12 @@ public class SAPFileInfo implements Serializable {
 	}
 	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
+	}
+	public int getFileStatus() {
+		return fileStatus;
+	}
+	public void setFileStatus(int fileStatus) {
+		this.fileStatus = fileStatus;
 	}
 	@Override
 	public String toString() {

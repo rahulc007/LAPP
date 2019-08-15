@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.transaction.Transactional;
 
@@ -15,10 +17,10 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @Entity
 @Transactional
 @Table(name = "user_auth_info")
-/*@NamedQueries({
-		@NamedQuery(name = "SAPFileInfo.getUserByEmail", query = "SELECT e FROM UserEntity e WHERE e.emailId =:emailId "),
-		@NamedQuery(name = "SAPFileInfo.resetNewPassword", query = "UPDATE UserEntity e SET e.password =:password where e.emailId =:emailId ") })
-*/
+@NamedQueries({
+		@NamedQuery(name = "UserAuthInfo.findByToken", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM UserAuthInfo e WHERE e.token =:token "),
+		@NamedQuery(name = "UserAuthInfo.deleteAuthToken", query = "DELETE from UserAuthInfo u where u.token =:token ") })
+
 public class UserAuthInfo  implements Serializable {
 
 	

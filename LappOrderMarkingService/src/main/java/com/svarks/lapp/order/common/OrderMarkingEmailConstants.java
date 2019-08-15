@@ -4,7 +4,7 @@ public interface OrderMarkingEmailConstants {
 	
 	
 	//BASE PACKAGE
-		 String REGISTER_SUCCESS_SUBJECT="Lapp Order Marking Registration Successfully..!";
+		 String REGISTER_SUCCESS_SUBJECT="Congratulations! Your Lapp Cable Marking Application Registration Successful..!";
 		 String LOGIN_BUTTON="Login";
 		 String USERNAME="Username:";
 		 String PASSWORD="Password:";
@@ -27,6 +27,7 @@ public interface OrderMarkingEmailConstants {
 		 String SMTP_PORT="mail.smtp.port";
 		 String SMTP_HOST_VALUE="smtp.gmail.com";
 		 String SMPT_PORT_VALUE="587";
+		 String FROM_NAME="LAPP CABLE GROUP";
 		 
 		 String FORGOT_PASSWORD_SUBJECT="Lapp OrderMarking Forgot Password Notification..!";
 		 String FORGOT_PASSWORD_CONTENT="Seems like you forgot your password lapp order marking application.If this is true,Click the below to reset your password";

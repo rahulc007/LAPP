@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS `user_entity` (
   PRIMARY KEY (`uid`)
 );
 
+
+
 alter table user_entity modify column uid int(11) not null AUTO_INCREMENT;
 alter table `user_entity` modify column `is_email_confirmed` varchar(1) default 0;
 alter table `user_entity` modify column `is_first_time_login` varchar(1) default 0;
@@ -28,3 +30,16 @@ INSERT INTO user_entity (`email_id`, `password`,`token`,`customer_id`, `utype`, 
 update user_entity set country_code=0;
 
 alter table user_profile modify column pid int(11) not null AUTO_INCREMENT;
+
+
+delete from user_entity where utype !=1;
+delete from user_profile;
+delete from sap_file_info;
+delete from user_auth_info;
+update hibernate_sequence set next_value=5;
+ 
+
+
+alter table user_profile modify column uemail_id varchar(60) unique key;
+
+ALTER TABLE user_profile ADD CONSTRAINT emailCons UNIQUE (uemail_id);

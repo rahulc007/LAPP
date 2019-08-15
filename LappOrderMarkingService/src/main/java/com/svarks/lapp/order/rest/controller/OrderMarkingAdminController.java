@@ -1,7 +1,15 @@
 package com.svarks.lapp.order.rest.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -9,6 +17,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,19 +29,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.svarks.lapp.mailer.service.EmailService;
 import com.svarks.lapp.mailer.service.MailerRequest;
+import com.svarks.lapp.mailer.service.SendMailService;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
 import com.svarks.lapp.order.dao.service.SAPFileDao;
 import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
+import com.svarks.lapp.order.dao.service.impl.ExcelFileService;
 import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserEntity;
 import com.svarks.lapp.order.entity.UserProfileEntity;
 import com.svarks.lapp.order.request.NewUserRequest;
 import com.svarks.lapp.order.response.BaseResponse;
-import com.svarks.lapp.order.response.NewUserResponse;
 import com.svarks.lapp.order.response.SAPFileInfoResponse;
 import com.svarks.lapp.order.response.UserCreationResponse;
 
@@ -44,23 +57,47 @@ public class OrderMarkingAdminController {
 	UserProfileDao profileService;
 
 	@Autowired
-	EmailService emailService;
-	
+	SendMailService sendMailService;
+
 	@Autowired
 	SAPFileDao sapFileService;
-	
+
+	@Autowired
+	ExcelFileService excelService;
 
 	@PostMapping(path = OrderMarkingConstants.UPLOAD_SAP_DATA, produces = OrderMarkingConstants.APPLICATION_JSON, headers = "Content-Type=multipart/form-data")
-	public BaseResponse updateNewProfile(@RequestParam(name = "emailId", required = false) String emailId,
+	public BaseResponse uploadSAPDataInfo(@RequestParam(name = "emailId", required = false) String emailId,
 			@RequestParam(name = "orderData", required = false) MultipartFile orderData) {
 
 		BaseResponse response = new BaseResponse();
+		if (!userService.isValidUser(emailId)) {
+			response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.UNAUTHRORIZED_REQUEST);
+			return response;
+
+		}
 
 		try {
 			if (orderData != null && orderData.getInputStream() != null) {
-				XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
+
+				if (sapFileService.findByFileName(orderData.getOriginalFilename())) {
+					response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+					response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+					response.setSuccessMessage("");
+					response.setErrorMessage("File Name already exists");
+					return response;
+				}
+				/*XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
 				XSSFSheet worksheet = workbook.getSheetAt(0);
-				int orderCount=0;
+				XSSFRow row = worksheet.getRow(0);*/
+				
+				File file = new File(OrderMarkingConstants.EXCEL_UPLOAD, orderData.getOriginalFilename());
+				orderData.transferTo(file);
+				
+			/*	XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
+				XSSFSheet worksheet = workbook.getSheetAt(0);
+				int orderCount = 0;
 				for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 					XSSFRow row = worksheet.getRow(i);
 					log.info("Cell 0==>" + row.getCell(0));
@@ -76,18 +113,19 @@ public class OrderMarkingAdminController {
 					log.info("Cell 9==>" + row.getCell(9));
 					log.info("Cell 10==>" + row.getCell(10));
 					orderCount++;
-				}
+				}*/
 				SAPFileInfo sapFileInfo = new SAPFileInfo();
 				sapFileInfo.setContentType(orderData.getContentType());
 				sapFileInfo.setCreatedDate(new Date());
 				sapFileInfo.setModifiedDate(new Date());
 				sapFileInfo.setFileName(orderData.getOriginalFilename());
-				sapFileInfo.setOrderCount(orderCount);
+				//sapFileInfo.setOrderCount(orderCount);
 				sapFileInfo.setFileSize(orderData.getSize());
-				sapFileInfo.setOrderItemCount(orderCount);
+				//sapFileInfo.setOrderItemCount(orderCount);
+				sapFileInfo.setFileStatus(OrderMarkingConstants.UPLOADED);
 				sapFileInfo.setUploadedBy(emailId);
 				sapFileService.save(sapFileInfo);
-				
+
 				response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 				response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 				response.setSuccessMessage("Excel uploaded successfully");
@@ -111,7 +149,6 @@ public class OrderMarkingAdminController {
 
 	}
 
-	
 	@GetMapping(value = OrderMarkingConstants.GET_SAP_FILE_DETAILS, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public SAPFileInfoResponse getSAPOrderFileData() {
 		log.info("calling getSAPOrderFileData to get all uploaded info ");
@@ -122,9 +159,23 @@ public class OrderMarkingAdminController {
 		return response;
 	}
 
-	
-	
-	
+	@GetMapping(value = OrderMarkingConstants.GET_SAP_FILE_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public SAPFileInfoResponse getSapDataByCreatedUser(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling getUserProfileDetails ");
+		SAPFileInfoResponse response = new SAPFileInfoResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setSapFileInofList(sapFileService.getSAPDataByUser(emailId));
+		}
+		return response;
+	}
+	private long getCurrentTimeStamp() {
+		Date date = new Date();
+		return date.getTime();
+
+	}
+
 	@PostMapping(path = OrderMarkingConstants.CREATE_NEW_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public BaseResponse createNewUser(@RequestBody NewUserRequest newUserRequest) {
 
@@ -151,7 +202,7 @@ public class OrderMarkingAdminController {
 
 				// USER LOGIN CREATION DONE
 				UserEntity user = convertNewUserDtoToEntity(newUserRequest);
-				String pwd=getAlphaNumericString(6, newUserRequest.getEmailId());
+				String pwd = getAlphaNumericString(6, newUserRequest.getEmailId());
 				user.setPassword(getBase64EncryptionPwd(pwd));
 				userService.save(user);
 
@@ -161,7 +212,7 @@ public class OrderMarkingAdminController {
 
 				// send mail logic
 
-				emailService.sendMail(sendCredentialsMail(newUserRequest,pwd));
+				sendMailService.sendMail(sendCredentialsMail(newUserRequest, pwd));
 
 				// Set success response
 				response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
@@ -196,17 +247,102 @@ public class OrderMarkingAdminController {
 
 	}
 
-	
 	@GetMapping(value = OrderMarkingConstants.GET_ALL_USER_DETAILS, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public UserCreationResponse getUserProfileDataList() {
-		log.info("calling getSAPOrderFileData to get all uploaded info ");
+		log.info("calling getUserProfileDataList to get all uploaded info ");
 		UserCreationResponse response = new UserCreationResponse();
-		response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
-		response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-		response.setUserProfileList(profileService.findAll());
+		try {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setUserProfileList(profileService.getAllUserDetails());
+			return response;
+		} catch (Exception e) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			return response;
+		}
+	}
+
+	@GetMapping(value = OrderMarkingConstants.GET_USER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public UserCreationResponse getAllUserCreationCreatedBy(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		UserCreationResponse response = new UserCreationResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setUserProfileList(profileService.fetchAllUserByCreation(emailId));
+		}
 		return response;
 	}
-	private MailerRequest sendCredentialsMail(NewUserRequest newUserRequest,String pwd) {
+
+	@GetMapping(value = OrderMarkingConstants.DOWNLOAD_CUSTOMER_DATA, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public ResponseEntity<ByteArrayResource> downloadCustomerData(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		try {
+			if (emailId != null && !emailId.isEmpty()) {
+
+				List<UserProfileEntity> userProfileList = profileService.fetchAllUserByCreation(emailId);
+				if (userProfileList != null && !userProfileList.isEmpty()) {
+					excelService.createCustomerDataExcel(userProfileList);
+					String filePath = OrderMarkingConstants.EXCEL_LOCATION
+							+ OrderMarkingConstants.CUSTOMER_DATA_FILE_NAME;
+					File file = new File(filePath);
+					// InputStreamResource resource = new InputStreamResource(new
+					// FileInputStream(filePath))
+
+					Path path = Paths.get(file.getAbsolutePath());
+					ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+					HttpHeaders header = new HttpHeaders();
+					header.add(HttpHeaders.CONTENT_DISPOSITION,
+							"attachment; filename=" + OrderMarkingConstants.CUSTOMER_DATA_FILE_NAME);
+					header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+					header.add("Pragma", "no-cache");
+					header.add("Expires", "0");
+					return ResponseEntity.ok().headers(header).contentLength(file.length())
+							.contentType(MediaType.parseMediaType("application/octet-stream")).body(resource);
+				}
+			}
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.DOWNLOAD_SAP_DATA, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public ResponseEntity<ByteArrayResource> downloadSapData(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling downloadSapData");
+		try {
+			if (emailId != null && !emailId.isEmpty()) {
+				
+				List<SAPFileInfo> sapFileDataList=sapFileService.getSAPDataByUser(emailId);
+
+				if (sapFileDataList != null && !sapFileDataList.isEmpty()) {
+					excelService.createSAPDataExcel(sapFileDataList);
+					String filePath = OrderMarkingConstants.EXCEL_LOCATION
+							+ OrderMarkingConstants.CUSTOMER_SAP_FILE_NAME;
+					File file = new File(filePath);
+					// InputStreamResource resource = new InputStreamResource(new
+					// FileInputStream(filePath))
+
+					Path path = Paths.get(file.getAbsolutePath());
+					ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+					HttpHeaders header = new HttpHeaders();
+					header.add(HttpHeaders.CONTENT_DISPOSITION,
+							"attachment; filename=" + OrderMarkingConstants.CUSTOMER_SAP_FILE_NAME);
+					header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+					header.add("Pragma", "no-cache");
+					header.add("Expires", "0");
+					return ResponseEntity.ok().headers(header).contentLength(file.length())
+							.contentType(MediaType.parseMediaType(OrderMarkingConstants.EXCEL_CONTENT_TYPE)).body(resource);
+				}
+			}
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
+	private MailerRequest sendCredentialsMail(NewUserRequest newUserRequest, String pwd) {
 		MailerRequest mailRequest = new MailerRequest();
 		mailRequest.setButtonName(OrderMarkingEmailConstants.LOGIN_BUTTON);
 		mailRequest.setName(newUserRequest.getFirstname());
@@ -223,7 +359,7 @@ public class OrderMarkingAdminController {
 
 	private UserEntity convertNewUserDtoToEntity(NewUserRequest newUserRequest) {
 		UserEntity user = new UserEntity();
-		user.setCountryCode("");
+		user.setCountryCode(newUserRequest.getCountryCode());
 		user.setCustomerId(newUserRequest.getConsumerId());
 		user.setEmailConfirmed(true);
 		user.setEmailId(newUserRequest.getEmailId());
@@ -240,7 +376,7 @@ public class OrderMarkingAdminController {
 		userProfile.setCity(newUserRequest.getCity());
 		userProfile.setConsumerId(newUserRequest.getConsumerId());
 		userProfile.setCountry(newUserRequest.getCountry());
-		userProfile.setEmailId(newUserRequest.getEmailId());
+		userProfile.setUemailId(newUserRequest.getEmailId());
 		userProfile.setFirstname(newUserRequest.getFirstname());
 		userProfile.setLastname(newUserRequest.getLastname());
 		userProfile.setPhonenumber(newUserRequest.getPhonenumber());
@@ -265,7 +401,7 @@ public class OrderMarkingAdminController {
 	static String getAlphaNumericString(int n, String name) {
 		String autoGeneratePwd = (name.length() > 3) ? name.substring(0, 4) : name.substring(0, name.length() - 1);
 		// chose a Character random from this String
-		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvxyz";
 
 		// create StringBuffer size of AlphaNumericString
 		StringBuilder sb = new StringBuilder(n);

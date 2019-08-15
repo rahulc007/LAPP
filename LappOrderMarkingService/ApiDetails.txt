@@ -2,7 +2,7 @@
 ----------------------------------------
 
 
-LAST UPDATED BY: 5th AUG 2019
+LAST UPDATED BY: 10th AUG 2019
 
 ----------------------------------------
 
@@ -72,7 +72,7 @@ METHOD: POST
 URL: http://localhost:8090/createUser
 
 If admin userType value=2 
-If customer userType value=1
+If customer userType value=3
 
 
 TO GET ALL FILE UPLOADED INFOMATION::
@@ -93,7 +93,7 @@ REQUEST PAYLOAD::
 "state":"axd",
 "city":"axd",
 "phonenumber":"axd"
-"userTYpe":2,
+"userType":2,
 "createdBy":"user_emailID",
 "countryCode":"001"
 

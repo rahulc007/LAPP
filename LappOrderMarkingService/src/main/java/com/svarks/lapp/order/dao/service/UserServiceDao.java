@@ -16,6 +16,7 @@ public interface UserServiceDao extends JpaRepository<UserEntity, Integer>{
 
 	
 	 boolean findByEmailId(@Param("emailId") String emailId );
+	 boolean isValidUser(@Param("emailId") String emailId );
 	 boolean findByCustId(@Param("customerId") String customerId );
 	 @Transactional
 	 @Modifying
@@ -24,6 +25,6 @@ public interface UserServiceDao extends JpaRepository<UserEntity, Integer>{
 	 @Transactional
 	 @Modifying
 	 void resetNewPassword(@Param("emailId") String emailId, @Param("password") String password);
-	 UserEntity findUserByCustomerId(@Param("customerId") String emailId, @Param("password") String password ,@Param("countryCode")String countryCode);
+	 UserEntity findUserByCustomerId(@Param("customerId") String customerId, @Param("password") String password ,@Param("countryCode")String countryCode);
 	// List<UserEntity> getUserByEmail(@Param("emailId") String emailId);
 }

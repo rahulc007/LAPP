@@ -15,9 +15,10 @@ public class UserCreationResponse extends BaseResponse {
 	}
 
 	public void setUserProfileList(List<UserProfileEntity> userProfileList) {
-
+		this.userProfileList = userProfileList;
 	}
-	
+
+
 	@Override
 	public String toString() {
 	     return ReflectionToStringBuilder.toString(this);

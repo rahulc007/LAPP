@@ -7,7 +7,7 @@ public interface OrderMarkingConstants {
 	 String BASE_PACKAGE_NAME="com.svarks.lapp.*";
 	 String ENTITY_PACKAGE="com.svarks.lapp.order.entity";
 	 String APPLICATION_JSON = "application/json";
-	 
+	 String UNDER_SCORE="_";
 	 
 	 
 	 //API ENDPOINT 
@@ -16,9 +16,15 @@ public interface OrderMarkingConstants {
 	 String CREATE_NEW_USER="/createUser";
 	 String FORGOT_PASSWORD_API = "/forgotPassword";
 	 String GET_SAP_FILE_DETAILS="/getSapFileInfo";
+	 String GET_SAP_FILE_DETAILS_ADMIN="/getSapFileInfoByUser";
 	 String GET_ALL_USER_DETAILS="/getAllUserDetails";
+	 String GET_USER_DETAILS_ADMIN="/getUserByCreated";
+	 String DOWNLOAD_CUSTOMER_DATA="/downloadCustData";
+	 String DOWNLOAD_SAP_DATA="/downloadSAPData";
+	 String GET_USER_PROFILE="/getUserProfile";
 	 String RESET_PASSWORD_API = "/resetPassword";
 	 String UPDATE_PASSWORD_API = "/updatePwd";
+	 String UPDATE_USER_PROFILE = "/updateProfile";
 	 
 	 
 	// EMAIL SUBJECT
@@ -48,6 +54,7 @@ public interface OrderMarkingConstants {
 		String LOGIN_ERROR = "EmailId or Password is incorrect";
 		String INVALID_USER = "Unauthorized request..!";
 		String EMAILCONFIRM = "Please verify your email address";
+		String PROFILE_UPDATE_SUCCESS="Updated user profile successfully..!";
 	 
 	 //USER TYPE AND ROLRES
 	 
@@ -59,4 +66,21 @@ public interface OrderMarkingConstants {
 		int MAX_AGE = 3600;
 		String CORS_ORIGINS = "*";
 		String CORS_HEADERS = "*";
+		
+		
+		//SAP FILE UPLAOD LOCATION
+		  String EXCEL_UPLOAD="/home/ubuntu/sapFile/";
+		  int  UPLOADED=1;
+		  int  IN_PROGRESS=2;
+		  int  SUCCESS=3;
+		
+		//EXCEL FILE CREATION AND LOCATION
+		
+		//String EXCEL_LOCATION="D://";
+		String EXCEL_LOCATION="/home/ubuntu/lappExcel/";
+		String CUSTOMER_DATA_FILE_NAME="CustomerData.xls";
+		String CUSTOMER_SAP_FILE_NAME="SAPData.xls";
+		String CUSTOMER_SHEET_NAME="Customer Data";
+		String SAP_SHEET_NAME="SAP Data";
+		String EXCEL_CONTENT_TYPE="application/octet-stream";
 }
