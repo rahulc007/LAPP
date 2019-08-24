@@ -1,5 +1,6 @@
 package com.svarks.lapp;
 
+import java.util.Calendar;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -16,23 +17,35 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import com.svarks.lapp.cron.service.SAPOrderCronJobService;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 
 @SpringBootApplication
 @ComponentScan(OrderMarkingConstants.BASE_PACKAGE_NAME)
 @EntityScan(OrderMarkingConstants.ENTITY_PACKAGE)
 @EnableJpaRepositories(OrderMarkingConstants.BASE_PACKAGE_NAME)
-
+@EnableScheduling
 public class LappOrderMarkingServiceApplication {
 	
 	@Autowired
 	private Environment env;
+	
+	@Autowired
+	SAPOrderCronJobService sapFileUploadCron;
 
 	public static void main(String[] args) {
 		SpringApplication.run(LappOrderMarkingServiceApplication.class, args);
 	}
 
+	
+	@Scheduled(cron = "0 0/5 * * * ?")  // executes every one minute
+	//@Scheduled(cron = "0 * * * * *")  // executes every one minute
+	public void run() {
+		sapFileUploadCron.executeJob();
+	}
 	
 /*	@Bean
 	public JavaMailSender getJavaMailSender() {

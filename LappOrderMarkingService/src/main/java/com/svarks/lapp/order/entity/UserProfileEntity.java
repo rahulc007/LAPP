@@ -22,7 +22,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 		@NamedQuery(name = "UserProfileEntity.getAllUserDetails", query = "SELECT e FROM UserProfileEntity e where e.userType > 1 order by e.pid desc"),
 		@NamedQuery(name = "UserProfileEntity.fetchAllUserByCreation", query = "SELECT e FROM UserProfileEntity e where (e.createdBy=:createdBy AND e.userType > 1)"),
 		@NamedQuery(name = "UserProfileEntity.updateProfile", query = "UPDATE UserProfileEntity p SET p.firstname=:firstname,"
-				+ " p.lastname=:lastname, p.state=:state, p.city=:city,p.phonenumber=:phonenumber,p.modifiedDate=now() where p.pid=:pid AND p.uemailId=:uemailId") })
+				+ " p.lastname=:lastname, p.state=:state, p.city=:city,p.phonenumber=:phonenumber,p.modifiedDate=now() where p.pid=:pid AND p.uemailId=:pemailId") })
 
 public class UserProfileEntity implements Serializable {
 

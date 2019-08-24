@@ -13,18 +13,23 @@ public interface OrderMarkingConstants {
 	 //API ENDPOINT 
 	 String VALIDATE_USER_API = "/validateUser";
 	 String UPLOAD_SAP_DATA="/uploadSAPData";
+	 String UPLOAD_ORDER_STATUS_DATA="/uploadOrderStatus";
 	 String CREATE_NEW_USER="/createUser";
 	 String FORGOT_PASSWORD_API = "/forgotPassword";
 	 String GET_SAP_FILE_DETAILS="/getSapFileInfo";
 	 String GET_SAP_FILE_DETAILS_ADMIN="/getSapFileInfoByUser";
 	 String GET_ALL_USER_DETAILS="/getAllUserDetails";
 	 String GET_USER_DETAILS_ADMIN="/getUserByCreated";
+	 String GET_ORDER_DETAILS_USER="/getOrderDetailsByUser";
+	 String GET_ORDER_DETAILS_ADMIN="/getOrderDetailsByAdmin";
 	 String DOWNLOAD_CUSTOMER_DATA="/downloadCustData";
 	 String DOWNLOAD_SAP_DATA="/downloadSAPData";
 	 String GET_USER_PROFILE="/getUserProfile";
+	 String GET_MARKING_TEXT_DETAILS="/getMarkingText";
 	 String RESET_PASSWORD_API = "/resetPassword";
 	 String UPDATE_PASSWORD_API = "/updatePwd";
 	 String UPDATE_USER_PROFILE = "/updateProfile";
+	 String ADD_MARKING_TEXT = "/addMarkingText";
 	 
 	 
 	// EMAIL SUBJECT
@@ -44,6 +49,7 @@ public interface OrderMarkingConstants {
 		// ERROR MESSAGES
 		String SUCCESS_MSG = "success";
 		String ERROR_MSG = "error";
+		String INVALID_HEADER = "SAP EXCEL contains Invalid header::";
 		String UNAUTHRORIZED_REQUEST="Un-Authorized request";
 		
 		String EMAIL_ALREADY_EXISTS = "EmailId already exists..!";
@@ -53,8 +59,10 @@ public interface OrderMarkingConstants {
 		String INSERT_SUCCESS = "Saved Successfully..!";
 		String LOGIN_ERROR = "EmailId or Password is incorrect";
 		String INVALID_USER = "Unauthorized request..!";
+		String INVALID_REQUEST = "Invalid request..!";
 		String EMAILCONFIRM = "Please verify your email address";
 		String PROFILE_UPDATE_SUCCESS="Updated user profile successfully..!";
+		String MARKING_TEXT_SUCCESS="Marking text added successfully..!";
 	 
 	 //USER TYPE AND ROLRES
 	 
@@ -69,12 +77,17 @@ public interface OrderMarkingConstants {
 		
 		
 		//SAP FILE UPLAOD LOCATION
+		// String EXCEL_UPLOAD="D:/sapFile/";
 		  String EXCEL_UPLOAD="/home/ubuntu/sapFile/";
 		  int  UPLOADED=1;
 		  int  IN_PROGRESS=2;
 		  int  SUCCESS=3;
+		  int EXCEL_NO_ROWS=12;
 		
-		//EXCEL FILE CREATION AND LOCATION
+		  
+		  //ORDER STATUS
+		  int NEW_ORDER=1;
+		//EXCEL FILE DOWNLOAD FOR CREATION LOCATION
 		
 		//String EXCEL_LOCATION="D://";
 		String EXCEL_LOCATION="/home/ubuntu/lappExcel/";

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#-------------PURPOSE OF THIS SCRIPT------------------
+# DEPLOYMENT SCRIPT FOR OPT-NAUKRI FRONT-END APPLICATION
+# ----- DEPLOYED BY RAJESH K  -----------
+# ----- VERSION 1.0 ---------
+# ----- DATE: AUG 17TH 2019 -----
+LATEST_FILE__PATH="/tmp/lapp-deploy/dist/lapp/"
+DEPLOY_PATH="/var/lib/tomcat8/webapps/"
+FILE_PATH="/tmp/lapp-deploy/dist/lapp/*"
+
+#STOP THE APACHE SERVER
+if [ ${#FILE_PATH[@]} -gt 0  ]
+then
+        sudo /etc/init.d/tomcat8 stop
+        cd $DEPLOY_PATH
+        sudo rm -rf lapp/
+        
+        sudo cp -r $LATEST_FILE__PATH $DEPLOY_PATH
+		#sudp rm -rf $LATEST_FILE__PATH
+        sudo /etc/init.d/tomcat8 start
+        sudo /etc/init.d/tomcat8 restart
+       
+        sudo rm -rf $LATEST_FILE__PATH
+
+echo "***********************************************************************"
+echo "DEPLOYED SUCCESSFULLY"
+echo "PRESS CTRL + C TO EXIT"
+else
+        echo "*****************************************************"
+        echo " PLEASE UPLOAD YOUR NEW JAR FILE UNDER /tmp/lapp-deploy/dist/"
+        echo "********************************************************"
+fi

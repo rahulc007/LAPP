@@ -1,15 +1,12 @@
 package com.svarks.lapp.order.rest.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-
-import javax.annotation.Resource;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -18,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,19 +27,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.svarks.lapp.mailer.service.MailerRequest;
 import com.svarks.lapp.mailer.service.SendMailService;
+import com.svarks.lapp.order.common.DataValidation;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
+import com.svarks.lapp.order.dao.service.OrderInfoDao;
+import com.svarks.lapp.order.dao.service.OrderStatusDao;
 import com.svarks.lapp.order.dao.service.SAPFileDao;
 import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
-import com.svarks.lapp.order.dao.service.impl.ExcelFileService;
+import com.svarks.lapp.order.entity.OrderStatusUpdate;
 import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserEntity;
 import com.svarks.lapp.order.entity.UserProfileEntity;
 import com.svarks.lapp.order.request.NewUserRequest;
 import com.svarks.lapp.order.response.BaseResponse;
+import com.svarks.lapp.order.response.OrderDetailsResponse;
 import com.svarks.lapp.order.response.SAPFileInfoResponse;
 import com.svarks.lapp.order.response.UserCreationResponse;
+import com.svarks.lapp.order.service.impl.ExcelFileService;
 
 @RestController
 public class OrderMarkingAdminController {
@@ -64,6 +65,16 @@ public class OrderMarkingAdminController {
 
 	@Autowired
 	ExcelFileService excelService;
+	
+	@Autowired
+	DataValidation dataValidation;
+	
+	@Autowired
+	OrderInfoDao orderInfoService;
+	
+	@Autowired
+	OrderStatusDao orderStatusService;
+	
 
 	@PostMapping(path = OrderMarkingConstants.UPLOAD_SAP_DATA, produces = OrderMarkingConstants.APPLICATION_JSON, headers = "Content-Type=multipart/form-data")
 	public BaseResponse uploadSAPDataInfo(@RequestParam(name = "emailId", required = false) String emailId,
@@ -88,41 +99,31 @@ public class OrderMarkingAdminController {
 					response.setErrorMessage("File Name already exists");
 					return response;
 				}
-				/*XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
+				XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
 				XSSFSheet worksheet = workbook.getSheetAt(0);
-				XSSFRow row = worksheet.getRow(0);*/
-				
+				XSSFRow row = worksheet.getRow(0);
+				for(int i=0;i<OrderMarkingConstants.EXCEL_NO_ROWS;i++) {
+					if(!dataValidation.isHeaderMatches(row.getCell(i).getStringCellValue())) {
+						log.info("Invalid header matches:"+row.getCell(i).getStringCellValue());
+						response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+						response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+						response.setErrorMessage(OrderMarkingConstants.INVALID_HEADER+row.getCell(i).getStringCellValue());
+						return response;
+					}
+				}
+				log.info("Header matches. Start uploading file..");
+				String filePath=OrderMarkingConstants.EXCEL_UPLOAD+orderData.getOriginalFilename();
 				File file = new File(OrderMarkingConstants.EXCEL_UPLOAD, orderData.getOriginalFilename());
 				orderData.transferTo(file);
 				
-			/*	XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
-				XSSFSheet worksheet = workbook.getSheetAt(0);
-				int orderCount = 0;
-				for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-					XSSFRow row = worksheet.getRow(i);
-					log.info("Cell 0==>" + row.getCell(0));
-					log.info("Cell 0==>" + row.getCell(0));
-					log.info("Cell 1==>" + row.getCell(1));
-					log.info("Cell 2==>" + row.getCell(2));
-					log.info("Cell 3==>" + row.getCell(3));
-					log.info("Cell 4==>" + row.getCell(4));
-					log.info("Cell 5==>" + row.getCell(5));
-					log.info("Cell 6==>" + row.getCell(6));
-					log.info("Cell 7==>" + row.getCell(7));
-					log.info("Cell 8==>" + row.getCell(8));
-					log.info("Cell 9==>" + row.getCell(9));
-					log.info("Cell 10==>" + row.getCell(10));
-					orderCount++;
-				}*/
 				SAPFileInfo sapFileInfo = new SAPFileInfo();
 				sapFileInfo.setContentType(orderData.getContentType());
 				sapFileInfo.setCreatedDate(new Date());
 				sapFileInfo.setModifiedDate(new Date());
 				sapFileInfo.setFileName(orderData.getOriginalFilename());
-				//sapFileInfo.setOrderCount(orderCount);
 				sapFileInfo.setFileSize(orderData.getSize());
-				//sapFileInfo.setOrderItemCount(orderCount);
 				sapFileInfo.setFileStatus(OrderMarkingConstants.UPLOADED);
+				sapFileInfo.setFilePath(filePath);
 				sapFileInfo.setUploadedBy(emailId);
 				sapFileService.save(sapFileInfo);
 
@@ -148,6 +149,84 @@ public class OrderMarkingAdminController {
 		return response;
 
 	}
+	
+	
+	@PostMapping(path = OrderMarkingConstants.UPLOAD_ORDER_STATUS_DATA, produces = OrderMarkingConstants.APPLICATION_JSON, headers = "Content-Type=multipart/form-data")
+	public BaseResponse uploadOrdetStatusInfo(@RequestParam(name = "emailId", required = false) String emailId,
+			@RequestParam(name = "orderData", required = false) MultipartFile orderData) {
+
+		BaseResponse response = new BaseResponse();
+		if (!userService.isValidUser(emailId)) {
+			response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.UNAUTHRORIZED_REQUEST);
+			return response;
+
+		}
+
+		try {
+			if (orderData != null && orderData.getInputStream() != null) {
+
+				if (orderStatusService.findByName(orderData.getOriginalFilename())) {
+					response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+					response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+					response.setSuccessMessage("");
+					response.setErrorMessage("File Name already exists");
+					return response;
+				}
+				XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
+				XSSFSheet worksheet = workbook.getSheetAt(0);
+				XSSFRow row = worksheet.getRow(0);
+				for(int i=0;i<OrderMarkingConstants.EXCEL_NO_ROWS;i++) {
+					if(!dataValidation.isStatusHeaderMatches(row.getCell(i).getStringCellValue())) {
+						log.info("Invalid header matches:"+row.getCell(i).getStringCellValue());
+						response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+						response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+						response.setErrorMessage(OrderMarkingConstants.INVALID_HEADER+row.getCell(i).getStringCellValue());
+						return response;
+					}
+				}
+				log.info("Header matches. Start uploading file..");
+				String filePath=OrderMarkingConstants.EXCEL_UPLOAD+orderData.getOriginalFilename();
+				File file = new File(OrderMarkingConstants.EXCEL_UPLOAD, orderData.getOriginalFilename());
+				orderData.transferTo(file);
+				
+				OrderStatusUpdate orderStatusInfo = new OrderStatusUpdate();
+				orderStatusInfo.setContentType(orderData.getContentType());
+				orderStatusInfo.setCreatedDate(new Date());
+				orderStatusInfo.setModifiedDate(new Date());
+				orderStatusInfo.setFileName(orderData.getOriginalFilename());
+				orderStatusInfo.setFileSize(orderData.getSize());
+				orderStatusInfo.setFileStatus(OrderMarkingConstants.UPLOADED);
+				orderStatusInfo.setFilePath(filePath);
+				orderStatusInfo.setUploadBy(emailId);
+				orderStatusService.save(orderStatusInfo);
+
+				response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+				response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+				response.setSuccessMessage("Excel uploaded successfully");
+			} else {
+				response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+				response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+				response.setSuccessMessage("");
+				response.setErrorMessage("Invalid input...!Please try to upload only excel file with data");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("Excpetion while uploading new profile" + e);
+			response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.INTERNAL_SERVER_ERROR);
+			response.setSuccessMessage("");
+			response.setErrorMessage("Exception Occurred...!");
+			return response;
+		}
+		return response;
+
+	}
+	
+
+	
 
 	@GetMapping(value = OrderMarkingConstants.GET_SAP_FILE_DETAILS, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public SAPFileInfoResponse getSAPOrderFileData() {
@@ -271,6 +350,31 @@ public class OrderMarkingAdminController {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			response.setUserProfileList(profileService.fetchAllUserByCreation(emailId));
+		}
+		return response;
+	}
+	
+	
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse getOrderDataByUser(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setOrderInfoList(orderInfoService.getOderByUser(emailId));
+		}
+		return response;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse getOrderDataByAdmin(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setOrderInfoList(orderInfoService.getOrderByAdmin(emailId));
 		}
 		return response;
 	}

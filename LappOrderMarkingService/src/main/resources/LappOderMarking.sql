@@ -43,3 +43,16 @@ update hibernate_sequence set next_value=5;
 alter table user_profile modify column uemail_id varchar(60) unique key;
 
 ALTER TABLE user_profile ADD CONSTRAINT emailCons UNIQUE (uemail_id);
+
+
+
+
+
+drop table order_info;
+drop table order_line_item;
+drop table order_info_order_line_item;
+drop table marking_text_item;
+alter table order_line_item modify column is_submit varchar(1);
+
+ALTER TABLE order_info CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+ALTER TABLE order_line_item CHARACTER SET latin1 COLLATE latin1_swedish_ci;

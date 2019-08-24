@@ -24,6 +24,6 @@ public interface UserProfileDao extends JpaRepository<UserProfileEntity, Integer
 	@Modifying
 	void updateProfile(@Param("firstname") String firstname, @Param("lastname") String lastname,
 			@Param("state") String state, @Param("city") String city, @Param("phonenumber") String phonenumber,
-			@Param("pid") int pid,@Param("emailId") String emailId);
+			@Param("pid") int pid,@Param("pemailId") String emailId);
 	
 }

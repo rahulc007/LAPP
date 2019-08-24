@@ -8,7 +8,7 @@ public interface OrderMarkingEmailConstants {
 		 String LOGIN_BUTTON="Login";
 		 String USERNAME="Username:";
 		 String PASSWORD="Password:";
-		 String LOGIN_URL="http://3.17.182.133:8080/";
+		 String LOGIN_URL="http://3.17.182.133:8080/lapp";
 		 
 		 String REGISTER_SUCCESS_MESSAGE="Your registration has been completed successfully..! Please find the login credentials below";
 		 
@@ -30,7 +30,10 @@ public interface OrderMarkingEmailConstants {
 		 String FROM_NAME="LAPP CABLE GROUP";
 		 
 		 String FORGOT_PASSWORD_SUBJECT="Lapp OrderMarking Forgot Password Notification..!";
+		 String MARKING_TEXT_SUBJECT="Marking text update Notification..!";
+		 String MARKING_TEXT_COTNENT="Thank you for updating marking text for line item. Your order will be processed further for successful order completion";
 		 String FORGOT_PASSWORD_CONTENT="Seems like you forgot your password lapp order marking application.If this is true,Click the below to reset your password";
 		 String FORGOT_PASSWORD_BUTTON="Reset My Password";
-		 String FORGOT_PASSWORD_URL="http://3.17.182.133:8080/forgot-password?emailId=";
+		 String LOGIN_BUTTON_NAME="Login";
+		 String FORGOT_PASSWORD_URL="http://3.17.182.133:8080/lapp/forgot-password?emailId=";
 }

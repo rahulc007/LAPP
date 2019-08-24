@@ -1,4 +1,4 @@
-package com.svarks.lapp.order.dao.service.impl;
+package com.svarks.lapp.order.service.impl;
 
 import java.io.FileOutputStream;
 import java.util.List;
