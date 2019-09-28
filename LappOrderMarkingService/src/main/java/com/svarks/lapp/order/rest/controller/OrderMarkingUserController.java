@@ -125,7 +125,7 @@ public class OrderMarkingUserController {
             	   res.setUserType(userentity.getUtype());
             	   String token=generateToken(userentity.getEmailId());
             	   res.setToken(token);
-            	   res.setUsername(user.getEmailId());
+            	   res.setUsername(userentity.getEmailId());
             	   res.setFirstTimeLogin(userentity.isFirstTimeLogin());
             	   res.setCountryCode(userentity.getCountryCode());
             	   //Store Session token info
