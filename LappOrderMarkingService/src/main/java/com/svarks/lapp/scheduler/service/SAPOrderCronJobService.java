@@ -1,15 +1,21 @@
-package com.svarks.lapp.cron.service;
+package com.svarks.lapp.scheduler.service;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -58,6 +64,7 @@ public class SAPOrderCronJobService {
 	@Autowired
 	SendMailService sendMailService;
 
+	@Transactional
 	public void executeJob() {
 
 		try {
@@ -84,11 +91,10 @@ public class SAPOrderCronJobService {
 			File sapExcelFile = new File(sapFileInfo.getFilePath());
 			if (sapExcelFile.exists()) {
 				InputStream inputStream = new FileInputStream(sapExcelFile);
-				List<OrderLineItem> orderLineItemList = new LinkedList<>();
 				XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
 				XSSFSheet worksheet = workbook.getSheetAt(0);
-				int orderCount = 0;
 				int orderItemCount = 0;
+				Map<String,OrderInfo> mapList = new HashMap<>();
 				for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 					XSSFRow row = worksheet.getRow(i);
 					if (!isRowValid(row,formatter)) {
@@ -100,7 +106,14 @@ public class SAPOrderCronJobService {
 					
 					OrderLineItem orderLineItem = new OrderLineItem();
 					orderItemCount++;
-					if (orderInfoService.findBySalesOrder(getCellValue(row.getCell(0),formatter))) {
+					OrderInfo orderInfo = orderInfoService.getOrderBySalesOrder(getCellValue(row.getCell(0),formatter));
+					if (orderInfo != null && orderInfo.getUserEmailId() != null) {
+						
+						   if(orderItemServie.findByProductionOrder(getCellValue(row.getCell(3),formatter))) {
+							   //Duplicate record exists 
+							   //Skipping duplicate record
+							   continue;
+						   }
 						orderLineItem.setArticleNo(getCellValue(row.getCell(5),formatter));
 						orderLineItem.setCreatedDate(new Date());
 						orderLineItem.setCustomerNo(getCellValue(row.getCell(9),formatter));
@@ -114,9 +127,21 @@ public class SAPOrderCronJobService {
 						orderLineItem.setProductionOrderStatus(getCellValue(row.getCell(4),formatter));
 						orderLineItem.setSubmit(false);
 						orderLineItem.setUpdatedBy("");
+						List<OrderLineItem> orderLineItemList = orderInfo.getOrderLineItem();
 						orderLineItemList.add(orderLineItem);
+						orderInfo.setOrderLineItem(orderLineItemList);
+						mapList.put(orderInfo.getSalesOrderno(), orderInfo);
+						
+						//orderInfoService.save(orderInfo);
+						//orderInfo.setOrderLineItem(orderLineItemList);
+						//if(orderLineItemList.size() >=500) {
+							
+							//orderItemServie.saveAll(orderLineItemList);
+							//orderInfoService.save(orderInfo);
+							//orderLineItemList.clear();
+						//}
 					} else {
-						OrderInfo orderInfo = new OrderInfo();
+						 orderInfo = new OrderInfo();
 						List<OrderLineItem> lineItemList = new LinkedList<>();
 						orderInfo.setCountryCode(getCellValue(row.getCell(11),formatter));
 						orderInfo.setCreatedBy(sapFileInfo.getUploadedBy());
@@ -142,7 +167,6 @@ public class SAPOrderCronJobService {
 						orderInfo.setOrderLineItem(lineItemList);
 						orderInfoService.save(orderInfo);
 						log.info("New Order Created Sales Order no:==>" + orderInfo.getSalesOrderno());
-						orderCount++;
 					}
 					/*
 					 * log.info("Cell 0==>" + row.getCell(0)); log.info("Cell 1==>" +
@@ -155,12 +179,28 @@ public class SAPOrderCronJobService {
 					 */
 					
 				}
+				//TODO Need to test performance for 10000
+				mapList.entrySet().stream().map(map->orderInfoService.save(map.getValue()));
+				
+				//mapList.entrySet().parallelStream().map(map->orderInfoService.save(map.getValue()));
+				
+				
+				//TODO
+				
+				/*ListUtils.partition(new ArrayList<OrderInfo>(mapList.values()), 500).stream()
+                .map(partition -> processBatch(partition)
+                .collect(Collectors.toList()));*/
+				
+				//ListUtils.par
+				//mapList.keySet().stream().filter(predicate)(action);
 
-				if (!orderLineItemList.isEmpty())
+				/*if (!orderLineItemList.isEmpty()) {
 					orderItemServie.saveAll(orderLineItemList);
+					orderLineItemList.clear();
+				}*/
 
 				// Update the order count and order list item count
-				updateSAPFileStatus(OrderMarkingConstants.SUCCESS, sapFileInfo.getFileId(), orderCount, orderItemCount);
+				updateSAPFileStatus(OrderMarkingConstants.SUCCESS, sapFileInfo.getFileId(), orderItemCount, orderItemCount);
 				sapExcelFile.delete();
 				log.info("Excel file deleted successfully..!");
 			} else {
@@ -206,7 +246,7 @@ public class SAPOrderCronJobService {
 		
 		try {
 			String cellValueInStr = formatter.formatCellValue(cellValue);
-			return (cellValueInStr != null && !cellValueInStr.isEmpty()) ? cellValueInStr : "";
+			return (cellValueInStr != null && !cellValueInStr.isEmpty()) ? cellValueInStr.trim() : "";
 
 		} catch (NullPointerException e) {
 			log.error("Cell value is getting NULL pointer==>" + e);
@@ -253,6 +293,7 @@ public class SAPOrderCronJobService {
 		UserProfileEntity userProfile = new UserProfileEntity();
 		userProfile.setConsumerId(newUserRequest.getCustomerId());
 		userProfile.setCountry(newUserRequest.getCountryCode());
+		userProfile.setCountryCode(newUserRequest.getCountryCode());
 		userProfile.setUemailId(newUserRequest.getEmailId());
 		//userProfile.setFirstname(newUserRequest.getFirstname());
 	//	userProfile.setLastname(newUserRequest.getLastname());

@@ -18,7 +18,10 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @Transactional
 @Table(name = "order_line_item")
 @NamedQueries({
-	@NamedQuery(name = "OrderLineItem.getSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno "),
+	@NamedQuery(name = "OrderLineItem.getSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus = 'Released' or e.productionOrderStatus='Rel') "),
+	@NamedQuery(name = "OrderLineItem.getProcessedSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus != 'Released' or e.productionOrderStatus != 'Rel') "),
+	@NamedQuery(name = "OrderLineItem.findByProductionOrder", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM OrderLineItem e WHERE e.productionOrderno =:productionOrderno"),
+	@NamedQuery(name = "OrderLineItem.updateOrderStatus", query = "UPDATE OrderLineItem e SET e.productionOrderStatus =:productionOrderStatus WHERE e.salesOrderno =:salesOrderno AND e.productionOrderno=:productionOrderno"),
 	@NamedQuery(name = "OrderLineItem.updateLineItem", query = "UPDATE OrderLineItem e SET e.isSubmit =:isSubmit,e.legsCount=:legsCount WHERE e.lineItemId =:lineItemId ") })
 
 
@@ -177,8 +180,115 @@ public class OrderLineItem implements Serializable {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((articleNo == null) ? 0 : articleNo.hashCode());
+		result = prime * result + ((createdDate == null) ? 0 : createdDate.hashCode());
+		result = prime * result + ((customerNo == null) ? 0 : customerNo.hashCode());
+		result = prime * result + ((customerPartNo == null) ? 0 : customerPartNo.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (isSubmit ? 1231 : 1237);
+		result = prime * result + legsCount;
+		result = prime * result + ((length == null) ? 0 : length.hashCode());
+		result = prime * result + lineItemId;
+		result = prime * result + ((lineItemno == null) ? 0 : lineItemno.hashCode());
+		result = prime * result + ((modifiedDate == null) ? 0 : modifiedDate.hashCode());
+		result = prime * result + ((productionOrderStatus == null) ? 0 : productionOrderStatus.hashCode());
+		result = prime * result + ((productionOrderno == null) ? 0 : productionOrderno.hashCode());
+		result = prime * result + ((quantity == null) ? 0 : quantity.hashCode());
+		result = prime * result + ((salesOrderno == null) ? 0 : salesOrderno.hashCode());
+		result = prime * result + ((updatedBy == null) ? 0 : updatedBy.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OrderLineItem other = (OrderLineItem) obj;
+		if (articleNo == null) {
+			if (other.articleNo != null)
+				return false;
+		} else if (!articleNo.equals(other.articleNo))
+			return false;
+		if (createdDate == null) {
+			if (other.createdDate != null)
+				return false;
+		} else if (!createdDate.equals(other.createdDate))
+			return false;
+		if (customerNo == null) {
+			if (other.customerNo != null)
+				return false;
+		} else if (!customerNo.equals(other.customerNo))
+			return false;
+		if (customerPartNo == null) {
+			if (other.customerPartNo != null)
+				return false;
+		} else if (!customerPartNo.equals(other.customerPartNo))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (isSubmit != other.isSubmit)
+			return false;
+		if (legsCount != other.legsCount)
+			return false;
+		if (length == null) {
+			if (other.length != null)
+				return false;
+		} else if (!length.equals(other.length))
+			return false;
+		if (lineItemId != other.lineItemId)
+			return false;
+		if (lineItemno == null) {
+			if (other.lineItemno != null)
+				return false;
+		} else if (!lineItemno.equals(other.lineItemno))
+			return false;
+		if (modifiedDate == null) {
+			if (other.modifiedDate != null)
+				return false;
+		} else if (!modifiedDate.equals(other.modifiedDate))
+			return false;
+		if (productionOrderStatus == null) {
+			if (other.productionOrderStatus != null)
+				return false;
+		} else if (!productionOrderStatus.equals(other.productionOrderStatus))
+			return false;
+		if (productionOrderno == null) {
+			if (other.productionOrderno != null)
+				return false;
+		} else if (!productionOrderno.equals(other.productionOrderno))
+			return false;
+		if (quantity == null) {
+			if (other.quantity != null)
+				return false;
+		} else if (!quantity.equals(other.quantity))
+			return false;
+		if (salesOrderno == null) {
+			if (other.salesOrderno != null)
+				return false;
+		} else if (!salesOrderno.equals(other.salesOrderno))
+			return false;
+		if (updatedBy == null) {
+			if (other.updatedBy != null)
+				return false;
+		} else if (!updatedBy.equals(other.updatedBy))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 	     return ReflectionToStringBuilder.toString(this);
 	 }
+	
 
 }

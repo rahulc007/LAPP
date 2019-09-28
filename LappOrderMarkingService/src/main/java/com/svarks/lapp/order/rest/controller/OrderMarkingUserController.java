@@ -1,8 +1,10 @@
 package com.svarks.lapp.order.rest.controller;
 
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,22 +22,26 @@ import com.svarks.lapp.order.common.DateUtilCommonSerive;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
 import com.svarks.lapp.order.dao.service.MarkingTextDao;
+import com.svarks.lapp.order.dao.service.OrderInfoDao;
 import com.svarks.lapp.order.dao.service.OrderLineItemDao;
-import com.svarks.lapp.order.dao.service.OrderStatusDao;
 import com.svarks.lapp.order.dao.service.UserAuthDao;
 import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
+import com.svarks.lapp.order.entity.OrderInfo;
 import com.svarks.lapp.order.entity.UserAuthInfo;
 import com.svarks.lapp.order.entity.UserEntity;
+import com.svarks.lapp.order.request.DeleteMarkingTextRequest;
 import com.svarks.lapp.order.request.ForgotPasswordRequest;
 import com.svarks.lapp.order.request.LoginRequest;
 import com.svarks.lapp.order.request.MarkingTextRequest;
 import com.svarks.lapp.order.request.ProfileUpdateRequest;
 import com.svarks.lapp.order.request.ResetPasswordRequest;
+import com.svarks.lapp.order.request.UpdateMarkingTextRequest;
 import com.svarks.lapp.order.request.UpdatePasswordRequest;
 import com.svarks.lapp.order.response.BaseResponse;
 import com.svarks.lapp.order.response.LoginResponse;
 import com.svarks.lapp.order.response.MarkingTextResponse;
+import com.svarks.lapp.order.response.OrderDetailsResponse;
 import com.svarks.lapp.order.response.UserProfileDetails;
 
 @RestController
@@ -54,6 +60,9 @@ public class OrderMarkingUserController {
 	
 	@Autowired
 	DateUtilCommonSerive dateUtilService;
+	
+	@Autowired
+	OrderInfoDao orderInfoService;
 	
 	@Autowired
 	SendMailService sendMailService;
@@ -114,7 +123,7 @@ public class OrderMarkingUserController {
             	   res.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
             	   res.setSuccessMessage("Login success");
             	   res.setUserType(userentity.getUtype());
-            	   String token=generateToken(user.getEmailId());
+            	   String token=generateToken(userentity.getEmailId());
             	   res.setToken(token);
             	   res.setUsername(user.getEmailId());
             	   res.setFirstTimeLogin(userentity.isFirstTimeLogin());
@@ -303,20 +312,22 @@ public class OrderMarkingUserController {
 	public BaseResponse addMarkingTextDetails(@RequestBody MarkingTextRequest markingTextRequest) {
 		BaseResponse res = new BaseResponse();
 		try {
-
-			if(!markingTextRequest.getMarkingTextList().isEmpty()) {
+			log.info("marking text is final submit==>"+markingTextRequest.isSubmit());
+			if(markingTextRequest.getLineItemId() !=0) {
 				lineItemService.updateLineItem(markingTextRequest.isSubmit(),markingTextRequest.getLegsCount(), markingTextRequest.getLineItemId());
+				if(!markingTextRequest.getMarkingTextList().isEmpty()) {
 				markingTextService.saveAll(markingTextRequest.getMarkingTextList());
+				}
 				
 				if(markingTextRequest.isSubmit()) {
-					sendMarkingTextMail(markingTextRequest);
+					sendMarkingTextMail(markingTextRequest.getEmailId());
 				}
 				
 				
 			res.setSuccessMessage(OrderMarkingConstants.MARKING_TEXT_SUCCESS);
 			res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			res.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
-			log.info("Marking text updated successfully....!");
+			log.info("Marking text added successfully....!");
 			
 			
 			
@@ -329,6 +340,88 @@ public class OrderMarkingUserController {
 		} catch (Exception e) {
 			log.error("Exception while addMarkingTextDetails==>"+e);
 			e.printStackTrace();
+			res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			res.setStatus(OrderMarkingConstants.INTERNAL_SERVER_ERROR);
+		}
+		return res;
+	}
+	
+	/**
+	 * Method is used to update the existing profile details by user or admin
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@PostMapping(value = OrderMarkingConstants.UPDATE_MARKING_TEXT, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public BaseResponse updateMarkingItemDetails(@RequestBody UpdateMarkingTextRequest markingTextRequest) {
+		BaseResponse res = new BaseResponse();
+		try {
+			log.info("marking text is final submit==>"+markingTextRequest.isSubmit());
+			if(markingTextRequest.getMarkingId() !=0) {
+				//lineItemService.updateLineItem(markingTextRequest.isSubmit(),markingTextRequest.getLegsCount(), markingTextRequest.getLineItemId());
+				markingTextService.updateMarkingtext(markingTextRequest.getLeftText(), markingTextRequest.getRightText(), markingTextRequest.getMiddleText(), markingTextRequest.getMarkingId());
+				
+				if(markingTextRequest.isSubmit()) {
+					sendMarkingTextMail(markingTextRequest.getEmailId());
+				}
+				
+				
+			res.setSuccessMessage(OrderMarkingConstants.MARKING_TEXT_SUCCESS);
+			res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			res.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			log.info("Marking text updated successfully....!");
+			
+			
+			
+			}else {
+				log.info("invalid request for updating marking text");
+				res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+				res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+				res.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+			}
+		} catch (Exception e) {
+			log.error("Exception while updating marking text==>"+e);
+			res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			res.setStatus(OrderMarkingConstants.INTERNAL_SERVER_ERROR);
+		}
+		return res;
+	}
+	
+	/**
+	 * Method is used to update the existing profile details by user or admin
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@PostMapping(value = OrderMarkingConstants.DELETE_MARKING_TEXT, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public BaseResponse deleteMarkingItemDetails(@RequestBody DeleteMarkingTextRequest markingTextRequest) {
+		BaseResponse res = new BaseResponse();
+		try {
+			log.info("marking text is final submit==>"+markingTextRequest.isSubmit());
+			if(markingTextRequest.getMarkingId() !=0) {
+				lineItemService.updateLineItem(markingTextRequest.isSubmit(),markingTextRequest.getLegsCount(), markingTextRequest.getLineItemId());
+				markingTextService.deleteMarkingtext(markingTextRequest.getMarkingId());
+				
+				if(markingTextRequest.isSubmit()) {
+					sendMarkingTextMail(markingTextRequest.getEmailId());
+				}
+				
+				
+			res.setSuccessMessage(OrderMarkingConstants.MARKING_TEXT_SUCCESS);
+			res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			res.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			log.info("Marking text updated successfully....!");
+			
+			
+			
+			}else {
+				log.info("invalid request for updating marking text");
+				res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+				res.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+				res.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+			}
+		} catch (Exception e) {
+			log.error("Exception while updating marking text==>"+e);
 			res.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			res.setStatus(OrderMarkingConstants.INTERNAL_SERVER_ERROR);
 		}
@@ -349,32 +442,52 @@ public class OrderMarkingUserController {
 		return response;
 	}
 	
-	private void sendMarkingTextMail(MarkingTextRequest markingTextRequest) {
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_BY_SALES_GENERIC, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse getOderDetailsBySalesOrderNo(@RequestParam(name = "salesOrderno") String salesOrderno,
+			@RequestParam(name = "userEmailId") String userEmailId,
+			@RequestParam(name = "createdBy") String createdBy) {
+		log.info("calling getUserProfileDetails ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (salesOrderno != null) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			if(userEmailId != null && userEmailId.length() !=0)
+			response.setOrderInfoList(orderInfoService.getMyOrderBySales(salesOrderno,userEmailId));
+			else if(createdBy != null && createdBy.length() !=0) {
+				response.setOrderInfoList(orderInfoService.getMyOrderBySalesAndAdmin(salesOrderno,userEmailId));
+			}
+		}
+		return response;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_BY_PRODUCTIONORDER, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse getOderDetailsByProductionNo(@RequestParam(name = "productionOrderno") String productionOrderno,
+			@RequestParam(name = "userEmailId") String userEmailId,
+			@RequestParam(name = "createdBy") String createdBy) {
+		log.info("calling getUserProfileDetails ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (productionOrderno != null) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			if(userEmailId != null && userEmailId.length() !=0)
+			response.setOrderInfoList(orderInfoService.getMyOrderByProdOrder(productionOrderno,userEmailId));
+			else if(createdBy != null && createdBy.length() !=0) {
+				response.setOrderInfoList(orderInfoService.getMyOrderByProdOrderAndAdmin(productionOrderno,userEmailId));
+			}
+		}
+		return response;
+	}
+	
+	private void sendMarkingTextMail(String emailId) {
 		//Send email
 		MailerRequest mailRequest = new MailerRequest();
 		mailRequest.setButtonName(OrderMarkingEmailConstants.LOGIN_BUTTON_NAME);
 		mailRequest.setP(OrderMarkingEmailConstants.MARKING_TEXT_COTNENT);
-		mailRequest.setName(markingTextRequest.getEmailId());
+		mailRequest.setName(emailId);
 		mailRequest.setSubject(OrderMarkingEmailConstants.MARKING_TEXT_SUBJECT);
 		mailRequest.setUrl(OrderMarkingEmailConstants.LOGIN_URL);
-		mailRequest.setTo(markingTextRequest.getEmailId());
+		mailRequest.setTo(emailId);
 		sendMailService.sendMail(mailRequest);
 	}
 	
-/*	private UserProfileEntity getUserProfileByDto(ProfileUpdateRequest profileUpdateRequest) {
-		UserProfileEntity userProfileEntity = new UserProfileEntity();
-		userProfileEntity.setCity(profileUpdateRequest.getCity());
-		userProfileEntity.setFirstname(profileUpdateRequest.getFirstname());
-		userProfileEntity.setLastname(profileUpdateRequest.getLastname());
-		userProfileEntity.setModifiedDate(new Date());
-		userProfileEntity.setPhonenumber(profileUpdateRequest.getPhonenumber());
-		userProfileEntity.setState(profileUpdateRequest.getState());
-		userProfileEntity.setPid(profileUpdateRequest.getPid());
-		//email id
-		
-		
-		return userProfileEntity;
-		
-	}
-*/
 }

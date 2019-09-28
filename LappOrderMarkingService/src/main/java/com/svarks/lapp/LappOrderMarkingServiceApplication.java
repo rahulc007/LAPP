@@ -1,27 +1,17 @@
 package com.svarks.lapp;
 
-import java.util.Calendar;
-import java.util.Properties;
-
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.svarks.lapp.cron.service.SAPOrderCronJobService;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
+import com.svarks.lapp.scheduler.service.FTPCronService;
+import com.svarks.lapp.scheduler.service.SAPOrderCronJobService;
 
 @SpringBootApplication
 @ComponentScan(OrderMarkingConstants.BASE_PACKAGE_NAME)
@@ -30,11 +20,13 @@ import com.svarks.lapp.order.common.OrderMarkingConstants;
 @EnableScheduling
 public class LappOrderMarkingServiceApplication {
 	
-	@Autowired
-	private Environment env;
+	
 	
 	@Autowired
 	SAPOrderCronJobService sapFileUploadCron;
+	
+	@Autowired
+	FTPCronService ftpService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(LappOrderMarkingServiceApplication.class, args);
@@ -45,6 +37,12 @@ public class LappOrderMarkingServiceApplication {
 	//@Scheduled(cron = "0 * * * * *")  // executes every one minute
 	public void run() {
 		sapFileUploadCron.executeJob();
+	}
+	
+	@Scheduled(cron = "0 0 10 * * *")  // executes every one minute
+	//@Scheduled(cron = "0 * * * * *")  // executes every one minute
+	public void ftpJob() {
+		ftpService.executeFTPOperation();
 	}
 	
 /*	@Bean

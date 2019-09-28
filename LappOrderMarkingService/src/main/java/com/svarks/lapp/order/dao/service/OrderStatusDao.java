@@ -14,7 +14,7 @@ public interface OrderStatusDao extends JpaRepository<OrderStatusUpdate, Integer
 	
 	
 	boolean findByName(@Param("fname") String fname );
-	List<OrderStatusUpdate> getByUser(@Param("uploadBy") String uploadBy );
+	List<OrderStatusUpdate> getByUser(@Param("createdUser") String createdUser );
 
 
 }

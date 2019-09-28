@@ -21,7 +21,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "marking_text_item")
 @NamedQueries({
 	@NamedQuery(name = "MarkingTextItem.getTextByLineItem", query = "SELECT e FROM MarkingTextItem e WHERE e.lineItemid =:lineItemid "),
-	@NamedQuery(name = "MarkingTextItem.updateMarkingtext", query = "UPDATE MarkingTextItem e SET e.leftText =:leftText,e.rightText =:rightText,e.middleText =:middleText where e.markingId =:markingId ") })
+	@NamedQuery(name = "MarkingTextItem.updateMarkingtext", query = "UPDATE MarkingTextItem e SET e.leftText =:leftText,e.rightText =:rightText,e.middleText =:middleText where e.markingId =:markingId "),
+	@NamedQuery(name = "MarkingTextItem.deleteMarkingtext", query = "DELETE from MarkingTextItem m where m.markingId =:markingId ") })
 
 
 public class MarkingTextItem implements Serializable {

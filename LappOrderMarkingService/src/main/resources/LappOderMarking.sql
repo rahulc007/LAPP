@@ -31,12 +31,16 @@ update user_entity set country_code=0;
 
 alter table user_profile modify column pid int(11) not null AUTO_INCREMENT;
 
-
+	mysql -uroot -porderMark@123 LappOrderMarkingDB;
 delete from user_entity where utype !=1;
 delete from user_profile;
 delete from sap_file_info;
 delete from user_auth_info;
-update hibernate_sequence set next_value=5;
+delete from order_info;
+delete from order_line_item;
+delete from order_info_order_line_item;
+delete from marking_text_item;
+update hibernate_sequence set next_val=5;
  
 
 

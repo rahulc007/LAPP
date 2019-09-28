@@ -36,6 +36,7 @@ public class UserProfileEntity implements Serializable {
 	private String lastname;
 	private String consumerId;
 	private String country;
+	private String countryCode;
 	private String state;
 	private String city;
 	private String phonenumber;
@@ -43,6 +44,15 @@ public class UserProfileEntity implements Serializable {
 	private String createdBy;
 	private Date createdDate;
 	private Date modifiedDate;
+
+	
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
 	public int getPid() {
 		return pid;

@@ -18,18 +18,27 @@ public interface OrderMarkingConstants {
 	 String FORGOT_PASSWORD_API = "/forgotPassword";
 	 String GET_SAP_FILE_DETAILS="/getSapFileInfo";
 	 String GET_SAP_FILE_DETAILS_ADMIN="/getSapFileInfoByUser";
+	 String GET_ORDER_STATUS_FILE_DETAILS_ADMIN="/getOrderStatusByUser";
 	 String GET_ALL_USER_DETAILS="/getAllUserDetails";
 	 String GET_USER_DETAILS_ADMIN="/getUserByCreated";
 	 String GET_ORDER_DETAILS_USER="/getOrderDetailsByUser";
+	 String GET_LINE_ITEM_USER="/getLineItemByUser";
+	 String GET_PROCESSED_LINE_ITEM_USER="/getProcessedItem";
+	 String GET_PROCESSED_ORDER_DETAILS_ADMIN="/getProcessedOrderByAdmin";
+	 String GET_PROCESSED_ORDER_DETAILS_USER="/getProcessedOrderByUser";
 	 String GET_ORDER_DETAILS_ADMIN="/getOrderDetailsByAdmin";
 	 String DOWNLOAD_CUSTOMER_DATA="/downloadCustData";
 	 String DOWNLOAD_SAP_DATA="/downloadSAPData";
 	 String GET_USER_PROFILE="/getUserProfile";
 	 String GET_MARKING_TEXT_DETAILS="/getMarkingText";
+	 String GET_ORDER_DETAILS_BY_SALES_GENERIC="/getOrderBySales";
+	 String GET_ORDER_DETAILS_BY_PRODUCTIONORDER="/getOrderByProductionOrder";
 	 String RESET_PASSWORD_API = "/resetPassword";
 	 String UPDATE_PASSWORD_API = "/updatePwd";
 	 String UPDATE_USER_PROFILE = "/updateProfile";
 	 String ADD_MARKING_TEXT = "/addMarkingText";
+	 String UPDATE_MARKING_TEXT = "/updateMarkingText";
+	 String DELETE_MARKING_TEXT = "/deleteMarkingText";
 	 
 	 
 	// EMAIL SUBJECT
@@ -83,10 +92,12 @@ public interface OrderMarkingConstants {
 		  int  IN_PROGRESS=2;
 		  int  SUCCESS=3;
 		  int EXCEL_NO_ROWS=12;
+		  String FTP_NAME="FTP";
 		
 		  
 		  //ORDER STATUS
 		  int NEW_ORDER=1;
+		  String ADMIN_EMAIL_ID="";
 		//EXCEL FILE DOWNLOAD FOR CREATION LOCATION
 		
 		//String EXCEL_LOCATION="D://";
@@ -96,4 +107,9 @@ public interface OrderMarkingConstants {
 		String CUSTOMER_SHEET_NAME="Customer Data";
 		String SAP_SHEET_NAME="SAP Data";
 		String EXCEL_CONTENT_TYPE="application/octet-stream";
+		
+		//FTP
+		
+		String FTP_SOURCE_LOCATION="lapp.sap.order.ftp.source";
+		String FTP_ARCHIVED_LOCATION="lapp.sap.order.ftp.archived";
 }

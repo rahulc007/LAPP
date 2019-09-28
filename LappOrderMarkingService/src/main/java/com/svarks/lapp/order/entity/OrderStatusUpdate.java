@@ -18,9 +18,9 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @Transactional
 @Table(name = "order_status_update")
 @NamedQueries({
-		@NamedQuery(name = "OrderStatusUpdate.getByUser", query = "SELECT e FROM OrderStatusUpdate e WHERE e.uploadBy =:uploadBy"),
+		@NamedQuery(name = "OrderStatusUpdate.getByUser", query = "SELECT e FROM OrderStatusUpdate e WHERE e.createdUser =:createdUser"),
 		@NamedQuery(name = "OrderStatusUpdate.findByName", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM OrderStatusUpdate e WHERE e.fileName =:fname "),
-		@NamedQuery(name = "OrderStatusUpdate.updateOrder", query = "UPDATE OrderInfo e SET e.uploadBy =:uploadBy where e.statusid =:statusid ") })
+		@NamedQuery(name = "OrderStatusUpdate.updateOrder", query = "UPDATE OrderStatusUpdate e SET e.createdUser =:createdUser where e.statusid =:statusid ") })
 
 
 public class OrderStatusUpdate implements Serializable {
@@ -36,7 +36,7 @@ public class OrderStatusUpdate implements Serializable {
 		private String contentType;
 		private int fileStatus;
 		private String filePath;
-		private String uploadBy;
+		private String createdUser;
 		private Date createdDate;
 		private Date modifiedDate;
 		
@@ -114,20 +114,19 @@ public class OrderStatusUpdate implements Serializable {
 
 
 
-		public String getUploadBy() {
-			return uploadBy;
-		}
-
-
-
-		public void setUploadBy(String uploadBy) {
-			this.uploadBy = uploadBy;
-		}
-
-
-
 		public Date getCreatedDate() {
 			return createdDate;
+		}
+
+
+		public String getCreatedUser() {
+			return createdUser;
+		}
+
+
+
+		public void setCreatedUser(String createdUser) {
+			this.createdUser = createdUser;
 		}
 
 

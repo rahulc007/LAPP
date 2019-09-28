@@ -4,10 +4,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -15,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +35,12 @@ import com.svarks.lapp.order.common.DataValidation;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
 import com.svarks.lapp.order.dao.service.OrderInfoDao;
+import com.svarks.lapp.order.dao.service.OrderLineItemDao;
 import com.svarks.lapp.order.dao.service.OrderStatusDao;
 import com.svarks.lapp.order.dao.service.SAPFileDao;
 import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
+import com.svarks.lapp.order.entity.OrderInfo;
 import com.svarks.lapp.order.entity.OrderStatusUpdate;
 import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserEntity;
@@ -42,6 +48,8 @@ import com.svarks.lapp.order.entity.UserProfileEntity;
 import com.svarks.lapp.order.request.NewUserRequest;
 import com.svarks.lapp.order.response.BaseResponse;
 import com.svarks.lapp.order.response.OrderDetailsResponse;
+import com.svarks.lapp.order.response.OrderLineItemResponse;
+import com.svarks.lapp.order.response.OrderStatusResponse;
 import com.svarks.lapp.order.response.SAPFileInfoResponse;
 import com.svarks.lapp.order.response.UserCreationResponse;
 import com.svarks.lapp.order.service.impl.ExcelFileService;
@@ -74,6 +82,9 @@ public class OrderMarkingAdminController {
 	
 	@Autowired
 	OrderStatusDao orderStatusService;
+	
+	@Autowired
+	OrderLineItemDao lineItemDao;
 	
 
 	@PostMapping(path = OrderMarkingConstants.UPLOAD_SAP_DATA, produces = OrderMarkingConstants.APPLICATION_JSON, headers = "Content-Type=multipart/form-data")
@@ -177,7 +188,7 @@ public class OrderMarkingAdminController {
 				XSSFWorkbook workbook = new XSSFWorkbook(orderData.getInputStream());
 				XSSFSheet worksheet = workbook.getSheetAt(0);
 				XSSFRow row = worksheet.getRow(0);
-				for(int i=0;i<OrderMarkingConstants.EXCEL_NO_ROWS;i++) {
+				for(int i=0;i<3;i++) {
 					if(!dataValidation.isStatusHeaderMatches(row.getCell(i).getStringCellValue())) {
 						log.info("Invalid header matches:"+row.getCell(i).getStringCellValue());
 						response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
@@ -187,21 +198,21 @@ public class OrderMarkingAdminController {
 					}
 				}
 				log.info("Header matches. Start uploading file..");
-				String filePath=OrderMarkingConstants.EXCEL_UPLOAD+orderData.getOriginalFilename();
-				File file = new File(OrderMarkingConstants.EXCEL_UPLOAD, orderData.getOriginalFilename());
-				orderData.transferTo(file);
 				
-				OrderStatusUpdate orderStatusInfo = new OrderStatusUpdate();
-				orderStatusInfo.setContentType(orderData.getContentType());
-				orderStatusInfo.setCreatedDate(new Date());
-				orderStatusInfo.setModifiedDate(new Date());
-				orderStatusInfo.setFileName(orderData.getOriginalFilename());
-				orderStatusInfo.setFileSize(orderData.getSize());
-				orderStatusInfo.setFileStatus(OrderMarkingConstants.UPLOADED);
-				orderStatusInfo.setFilePath(filePath);
-				orderStatusInfo.setUploadBy(emailId);
-				orderStatusService.save(orderStatusInfo);
-
+				
+				
+				//Need to update order status
+				DataFormatter formatter = new DataFormatter();
+				for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+					 row = worksheet.getRow(i);
+					if (!isRowValid(row,formatter)) {
+						log.info("Invalid row number::"+i+"at file name:"+orderData.getName());
+						continue;
+					}
+					lineItemDao.updateOrderStatus(getCellValue(row.getCell(1),formatter), getCellValue(row.getCell(0),formatter), getCellValue(row.getCell(2),formatter));
+					
+				}
+				addOrderStatus(orderData,emailId);
 				response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 				response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 				response.setSuccessMessage("Excel uploaded successfully");
@@ -214,7 +225,7 @@ public class OrderMarkingAdminController {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.info("Excpetion while uploading new profile" + e);
+			log.info("Excpetion while uploading order status" + e);
 			response.setStatusMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.INTERNAL_SERVER_ERROR);
 			response.setSuccessMessage("");
@@ -225,7 +236,45 @@ public class OrderMarkingAdminController {
 
 	}
 	
+private void addOrderStatus(MultipartFile orderData,String emailId) {
+	OrderStatusUpdate orderStatusInfo = new OrderStatusUpdate();
+	orderStatusInfo.setContentType(orderData.getContentType());
+	orderStatusInfo.setCreatedDate(new Date());
+	orderStatusInfo.setModifiedDate(new Date());
+	orderStatusInfo.setFileName(orderData.getOriginalFilename());
+	orderStatusInfo.setFileSize(orderData.getSize());
+	orderStatusInfo.setFileStatus(OrderMarkingConstants.SUCCESS);
+	orderStatusInfo.setFilePath(orderData.getOriginalFilename());
+	orderStatusInfo.setCreatedUser(emailId);
+	orderStatusService.save(orderStatusInfo);
 
+}
+	private boolean isRowValid(XSSFRow row,DataFormatter formatter ) {
+		if (getCellValue(row.getCell(0),formatter).isEmpty() || getCellValue(row.getCell(1),formatter).isEmpty()
+				|| getCellValue(row.getCell(1),formatter).isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
+	private String getCellValue(XSSFCell cellValue,DataFormatter formatter ) {
+		
+		try {
+			String cellValueInStr = formatter.formatCellValue(cellValue);
+			return (cellValueInStr != null && !cellValueInStr.isEmpty()) ? cellValueInStr.trim() : "";
+
+		} catch (NullPointerException e) {
+			log.error("Cell value is getting NULL pointer==>" + e);
+			//System.gc();
+			return "";
+		} catch (Exception e) {
+			log.error("Exception while reading cell value==>" + e);
+			e.printStackTrace();
+			return "";
+		}
+
+	}
+	
 	
 
 	@GetMapping(value = OrderMarkingConstants.GET_SAP_FILE_DETAILS, produces = OrderMarkingConstants.APPLICATION_JSON)
@@ -249,10 +298,16 @@ public class OrderMarkingAdminController {
 		}
 		return response;
 	}
-	private long getCurrentTimeStamp() {
-		Date date = new Date();
-		return date.getTime();
-
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_STATUS_FILE_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderStatusResponse getOrderUploadStatusByUser(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling getUserProfileDetails ");
+		OrderStatusResponse response = new OrderStatusResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setOrderStatusList(orderStatusService.getByUser(emailId));
+		}
+		return response;
 	}
 
 	@PostMapping(path = OrderMarkingConstants.CREATE_NEW_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
@@ -350,31 +405,111 @@ public class OrderMarkingAdminController {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			response.setUserProfileList(profileService.fetchAllUserByCreation(emailId));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
 		}
 		return response;
 	}
 	
 	
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
-	public OrderDetailsResponse getOrderDataByUser(@RequestParam(name = "emailId") String emailId) {
+	public OrderDetailsResponse getOrderDataByUser(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
 		log.info("calling getAllUserCreationCreatedBy ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
 		if (emailId != null && !emailId.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			response.setOrderInfoList(orderInfoService.getOderByUser(emailId));
+			//response.setOrderInfoList(new ArrayList<>(orderInfoService.getOderByUser(emailId,0,100)));
+			PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getOderByUser(emailId,pageable));
+			//response.setOrderInfoList(orderInfoService.getOderByUser(emailId,0,100));
+			//response.setOrderInfoList(orderInfoService.getOderByUser(emailId));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+		}
+		return response;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_LINE_ITEM_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderLineItemResponse getOrderLineItemBySalesOrder(@RequestParam(name = "salesOrderno") String salesOrderno) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		OrderLineItemResponse response = new OrderLineItemResponse();
+		if (salesOrderno != null && !salesOrderno.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setOrderLineItemList(lineItemDao.getSalesOrderItem(salesOrderno));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+		}
+		return response;
+	}
+	
+	
+	@GetMapping(value = OrderMarkingConstants.GET_PROCESSED_LINE_ITEM_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderLineItemResponse getProcessedOrderLineItem(@RequestParam(name = "salesOrderno") String salesOrderno) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		OrderLineItemResponse response = new OrderLineItemResponse();
+		if (salesOrderno != null && !salesOrderno.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setOrderLineItemList(lineItemDao.getProcessedSalesOrderItem(salesOrderno));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
 		}
 		return response;
 	}
 	
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
-	public OrderDetailsResponse getOrderDataByAdmin(@RequestParam(name = "emailId") String emailId) {
+	public OrderDetailsResponse getOrderDataByAdmin(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
 		log.info("calling getAllUserCreationCreatedBy ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
 		if (emailId != null && !emailId.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			response.setOrderInfoList(orderInfoService.getOrderByAdmin(emailId));
+			PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getOrderByAdmin(emailId,pageable));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+		}
+		return response;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_PROCESSED_ORDER_DETAILS_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse getCompletedOrderDataByUser(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
+		log.info("calling processed order details ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getProcessedOrderByUser(emailId,pageable));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+		}
+		return response;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_PROCESSED_ORDER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse getCompletedOrderDataByAdmin(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
+		log.info("calling getAllUserCreationCreatedBy ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getProcessedOrderByAdmin(emailId,pageable));
 		}
 		return response;
 	}
@@ -488,6 +623,7 @@ public class OrderMarkingAdminController {
 		userProfile.setUserType(newUserRequest.getUserType());
 		userProfile.setCreatedBy(newUserRequest.getCreatedBy());
 		userProfile.setCreatedDate(new Date());
+		userProfile.setCountryCode(newUserRequest.getCountryCode());
 		userProfile.setModifiedDate(new Date());
 		return userProfile;
 	}

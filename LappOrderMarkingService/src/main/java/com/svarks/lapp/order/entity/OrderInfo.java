@@ -3,13 +3,17 @@ package com.svarks.lapp.order.entity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -20,15 +24,23 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 @Entity
 @Transactional
-@Table(name = "order_info")
+@Table(name = "order_info") 
 @NamedQueries({
-		@NamedQuery(name = "OrderInfo.getOrderByAdmin", query = "SELECT e FROM OrderInfo e WHERE e.createdBy =:createdBy order by e.createdDate desc"),
-		@NamedQuery(name = "OrderInfo.getOderByUser", query = "SELECT e FROM OrderInfo e WHERE e.userEmailId =:userEmailId order by e.createdDate desc"),
+		@NamedQuery(name = "OrderInfo.getOrderByAdmin", query = "SELECT DISTINCT e FROM OrderInfo e INNER JOIN OrderLineItem ol on e.salesOrderno=ol.salesOrderno WHERE (e.createdBy =:createdBy OR e.createdBy='FTP') AND (ol.productionOrderStatus='Released' OR ol.productionOrderStatus='Rel')"),
+		@NamedQuery(name = "OrderInfo.getOderByUser", query = "SELECT DISTINCT e FROM OrderInfo e INNER JOIN OrderLineItem ol on e.salesOrderno=ol.salesOrderno  WHERE e.userEmailId =:userEmailId AND (ol.productionOrderStatus='Released' OR ol.productionOrderStatus='Rel')"),
+		@NamedQuery(name = "OrderInfo.getProcessedOrderByAdmin", query = "SELECT DISTINCT e FROM OrderInfo e INNER JOIN OrderLineItem ol on e.salesOrderno=ol.salesOrderno WHERE (e.createdBy =:createdBy OR e.createdBy='FTP') AND (ol.productionOrderStatus !='Released' AND ol.productionOrderStatus !='Rel')"),
+		@NamedQuery(name = "OrderInfo.getProcessedOrderByUser", query = "SELECT DISTINCT e FROM OrderInfo e INNER JOIN OrderLineItem ol on e.salesOrderno=ol.salesOrderno  WHERE e.userEmailId =:userEmailId AND (ol.productionOrderStatus !='Released' AND ol.productionOrderStatus !='Rel')"),
 		@NamedQuery(name = "OrderInfo.findBySalesOrder", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM OrderInfo e WHERE e.salesOrderno =:salesOrderno"),
+		@NamedQuery(name = "OrderInfo.getOrderBySalesOrder", query = "SELECT e FROM OrderInfo e WHERE e.salesOrderno =:salesOrderno"),
+		@NamedQuery(name = "OrderInfo.getMyOrderBySales", query = "SELECT DISTINCT e FROM OrderInfo e ,OrderLineItem ol WHERE e.salesOrderno =:salesOrderno AND e.userEmailId =:userEmailId  AND (ol.productionOrderStatus='Released' OR ol.productionOrderStatus='Rel')"),
+		@NamedQuery(name = "OrderInfo.getMyOrderBySalesAndAdmin", query = "SELECT DISTINCT e FROM OrderInfo e ,OrderLineItem ol WHERE e.salesOrderno =:salesOrderno AND (e.createdBy =:createdBy OR e.createdBy='FTP') AND (ol.productionOrderStatus='Released' OR ol.productionOrderStatus='Rel')"),
+		@NamedQuery(name = "OrderInfo.getMyOrderByProdOrder", query = "SELECT DISTINCT e FROM OrderInfo e INNER JOIN OrderLineItem ol on e.salesOrderno=ol.salesOrderno WHERE e.userEmailId =:userEmailId AND ol.productionOrderno=:productionOrderno AND (ol.productionOrderStatus='Released' OR ol.productionOrderStatus='Rel')"),
+		@NamedQuery(name = "OrderInfo.getMyOrderByProdOrderAndAdmin", query = "SELECT DISTINCT e FROM OrderInfo e INNER JOIN OrderLineItem ol on e.salesOrderno=ol.salesOrderno WHERE (e.createdBy =:createdBy OR e.createdBy='FTP')AND ol.productionOrderno=:productionOrderno AND (ol.productionOrderStatus='Released' OR ol.productionOrderStatus='Rel')"),
 		@NamedQuery(name = "OrderInfo.updateOrderStatus", query = "UPDATE OrderInfo e SET e.orderStatus =1 where e.salesOrderno =:salesOrderno "),
 		@NamedQuery(name = "OrderInfo.updateOrder", query = "UPDATE OrderInfo e SET e.orderStatus =:orderStatus where e.salesOrderno =:salesOrderno ") })
 
-
+//@NamedNativeQuery(name = "OrderInfo.getOderByUser", query = "select orderlinei1_.line_item_id,orderinfo0_.oid as oid1_1_, orderinfo0_.country_code as country_2_1_, orderinfo0_.created_by as created_3_1_, orderinfo0_.created_date as created_4_1_, orderinfo0_.modified_date as modified5_1_, orderinfo0_.order_date as order_da6_1_, orderinfo0_.order_status as order_st7_1_, orderinfo0_.sales_orderno as sales_or8_1_, orderinfo0_.user_email_id as user_ema9_1_ from order_info orderinfo0_ inner join order_line_item orderlinei1_ on (orderinfo0_.sales_orderno=orderlinei1_.sales_orderno) where orderinfo0_.user_email_id='rajeshsavi123@gmail.com' and (orderlinei1_.production_order_status='Released' or orderlinei1_.production_order_status='Rel')")
+//@NamedNativeQuery(name = "OrderInfo.getOderByUser", query = "SELECT distinct * FROM order_info oi inner join order_line_item oli on oi.sales_orderno = oli.sales_orderno where oi.user_email_id =:userEmailId and (production_order_status = 'Released' OR production_order_status = 'Rel') limit :startLimit, :endLimit", resultClass = OrderInfo.class)
 public class OrderInfo implements Serializable {
 
 	
@@ -45,7 +57,9 @@ public class OrderInfo implements Serializable {
 	private Date createdDate;
 	private Date modifiedDate;
 	@JoinTable
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	
+	@JoinColumn(name = "salesOrderno", nullable = false)
 	private List<OrderLineItem> orderLineItem;
 	
 	
@@ -150,9 +164,85 @@ public class OrderInfo implements Serializable {
 		this.orderLineItem = orderLineItem;
 	}
 
-
 	@Override
 	public String toString() {
 	     return ReflectionToStringBuilder.toString(this);
 	 }
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((countryCode == null) ? 0 : countryCode.hashCode());
+		result = prime * result + ((createdBy == null) ? 0 : createdBy.hashCode());
+		result = prime * result + ((createdDate == null) ? 0 : createdDate.hashCode());
+		result = prime * result + ((modifiedDate == null) ? 0 : modifiedDate.hashCode());
+		result = prime * result + oid;
+		result = prime * result + ((orderDate == null) ? 0 : orderDate.hashCode());
+		result = prime * result + ((orderLineItem == null) ? 0 : orderLineItem.hashCode());
+		result = prime * result + orderStatus;
+		result = prime * result + ((salesOrderno == null) ? 0 : salesOrderno.hashCode());
+		result = prime * result + ((userEmailId == null) ? 0 : userEmailId.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OrderInfo other = (OrderInfo) obj;
+		if (countryCode == null) {
+			if (other.countryCode != null)
+				return false;
+		} else if (!countryCode.equals(other.countryCode))
+			return false;
+		if (createdBy == null) {
+			if (other.createdBy != null)
+				return false;
+		} else if (!createdBy.equals(other.createdBy))
+			return false;
+		if (createdDate == null) {
+			if (other.createdDate != null)
+				return false;
+		} else if (!createdDate.equals(other.createdDate))
+			return false;
+		if (modifiedDate == null) {
+			if (other.modifiedDate != null)
+				return false;
+		} else if (!modifiedDate.equals(other.modifiedDate))
+			return false;
+		if (oid != other.oid)
+			return false;
+		if (orderDate == null) {
+			if (other.orderDate != null)
+				return false;
+		} else if (!orderDate.equals(other.orderDate))
+			return false;
+		if (orderLineItem == null) {
+			if (other.orderLineItem != null)
+				return false;
+		} else if (!orderLineItem.equals(other.orderLineItem))
+			return false;
+		if (orderStatus != other.orderStatus)
+			return false;
+		if (salesOrderno == null) {
+			if (other.salesOrderno != null)
+				return false;
+		} else if (!salesOrderno.equals(other.salesOrderno))
+			return false;
+		if (userEmailId == null) {
+			if (other.userEmailId != null)
+				return false;
+		} else if (!userEmailId.equals(other.userEmailId))
+			return false;
+		return true;
+	}
+
+
 }

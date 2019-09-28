@@ -1,5 +1,6 @@
 package com.svarks.lapp.order.common;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,4 +50,11 @@ public class DataValidation {
 		return (str != null && !str.isEmpty() );
 	}
 
+	public boolean isExcelFile(String name) {
+		List<String> excelFilelist= new ArrayList<>();
+		excelFilelist.add("xlsx");
+		excelFilelist.add("csv");
+		excelFilelist.add("xls");
+		return excelFilelist.contains(name);
+	}
 }

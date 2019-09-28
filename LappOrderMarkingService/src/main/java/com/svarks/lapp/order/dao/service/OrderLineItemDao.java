@@ -15,9 +15,16 @@ import com.svarks.lapp.order.entity.OrderLineItem;
 public interface OrderLineItemDao extends JpaRepository<OrderLineItem, Integer> {
 	
 	List<OrderLineItem> getSalesOrderItem(@Param("salesOrderno") String salesOrderno);
+	List<OrderLineItem> getProcessedSalesOrderItem(@Param("salesOrderno") String salesOrderno);
+	boolean findByProductionOrder(@Param("productionOrderno") String productionOrderno );
 	
 	@Transactional
 	 @Modifying
 	void updateLineItem(@Param("isSubmit") boolean isSubmit,@Param("legsCount") int legsCount,@Param("lineItemId") int lineItemId);
+	
+
+	@Transactional
+	 @Modifying
+	void updateOrderStatus(@Param("productionOrderStatus") String productionOrderStatus,@Param("salesOrderno") String salesOrderno,@Param("productionOrderno") String productionOrderno);
 
 }
