@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.svarks.lapp.order.entity.MarkingTextItem;
 
 public class MarkingTextRequest {
 	
 	private int lineItemId;
+	@JsonProperty
 	private boolean isSubmit;
 	private String emailId;
 	private int legsCount;
