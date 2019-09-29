@@ -1,10 +1,8 @@
 package com.svarks.lapp.order.rest.controller;
 
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -454,7 +452,7 @@ public class OrderMarkingUserController {
 			if(userEmailId != null && userEmailId.length() !=0)
 			response.setOrderInfoList(orderInfoService.getMyOrderBySales(salesOrderno,userEmailId));
 			else if(createdBy != null && createdBy.length() !=0) {
-				response.setOrderInfoList(orderInfoService.getMyOrderBySalesAndAdmin(salesOrderno,userEmailId));
+				response.setOrderInfoList(orderInfoService.getMyOrderBySalesAndAdmin(salesOrderno,createdBy));
 			}
 		}
 		return response;
@@ -472,7 +470,7 @@ public class OrderMarkingUserController {
 			if(userEmailId != null && userEmailId.length() !=0)
 			response.setOrderInfoList(orderInfoService.getMyOrderByProdOrder(productionOrderno,userEmailId));
 			else if(createdBy != null && createdBy.length() !=0) {
-				response.setOrderInfoList(orderInfoService.getMyOrderByProdOrderAndAdmin(productionOrderno,userEmailId));
+				response.setOrderInfoList(orderInfoService.getMyOrderByProdOrderAndAdmin(productionOrderno,createdBy));
 			}
 		}
 		return response;

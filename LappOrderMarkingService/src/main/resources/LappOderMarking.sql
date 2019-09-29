@@ -40,6 +40,7 @@ delete from order_info;
 delete from order_line_item;
 delete from order_info_order_line_item;
 delete from marking_text_item;
+alter table order_line_item modify column is_submit varchar(1);
 update hibernate_sequence set next_val=5;
  
 

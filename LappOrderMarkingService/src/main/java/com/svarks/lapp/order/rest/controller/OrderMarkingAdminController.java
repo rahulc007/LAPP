@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +38,6 @@ import com.svarks.lapp.order.dao.service.OrderStatusDao;
 import com.svarks.lapp.order.dao.service.SAPFileDao;
 import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
-import com.svarks.lapp.order.entity.OrderInfo;
 import com.svarks.lapp.order.entity.OrderStatusUpdate;
 import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserEntity;
@@ -421,11 +418,8 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 		if (emailId != null && !emailId.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			//response.setOrderInfoList(new ArrayList<>(orderInfoService.getOderByUser(emailId,0,100)));
-			PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			response.setOrderInfoList(orderInfoService.getOderByUser(emailId,pageable));
-			//response.setOrderInfoList(orderInfoService.getOderByUser(emailId,0,100));
-			//response.setOrderInfoList(orderInfoService.getOderByUser(emailId));
+			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getOderByUser(emailId,startLimit,endLimit));
 		}else {
 			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
@@ -469,13 +463,13 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 	
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public OrderDetailsResponse getOrderDataByAdmin(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
-		log.info("calling getAllUserCreationCreatedBy ");
+		log.info("calling get My Orders DataByAdmin ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
 		if (emailId != null && !emailId.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			response.setOrderInfoList(orderInfoService.getOrderByAdmin(emailId,pageable));
+			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getOrderByAdmin(emailId,startLimit,endLimit));
 		}else {
 			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
@@ -491,8 +485,8 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 		if (emailId != null && !emailId.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			response.setOrderInfoList(orderInfoService.getProcessedOrderByUser(emailId,pageable));
+			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getProcessedOrderByUser(emailId,startLimit,endLimit));
 		}else {
 			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
@@ -508,8 +502,8 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 		if (emailId != null && !emailId.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			response.setOrderInfoList(orderInfoService.getProcessedOrderByAdmin(emailId,pageable));
+			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			response.setOrderInfoList(orderInfoService.getProcessedOrderByAdmin(emailId,startLimit,endLimit));
 		}
 		return response;
 	}

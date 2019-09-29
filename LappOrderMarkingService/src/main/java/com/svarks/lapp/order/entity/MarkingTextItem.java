@@ -20,7 +20,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Transactional
 @Table(name = "marking_text_item")
 @NamedQueries({
-	@NamedQuery(name = "MarkingTextItem.getTextByLineItem", query = "SELECT e FROM MarkingTextItem e WHERE e.lineItemid =:lineItemid "),
+	@NamedQuery(name = "MarkingTextItem.getTextByLineItem", query = "SELECT e FROM MarkingTextItem e WHERE e.textItemid =:lineItemid "),
 	@NamedQuery(name = "MarkingTextItem.updateMarkingtext", query = "UPDATE MarkingTextItem e SET e.leftText =:leftText,e.rightText =:rightText,e.middleText =:middleText where e.markingId =:markingId "),
 	@NamedQuery(name = "MarkingTextItem.deleteMarkingtext", query = "DELETE from MarkingTextItem m where m.markingId =:markingId ") })
 
@@ -37,7 +37,7 @@ public class MarkingTextItem implements Serializable {
 	private String middleText;
 	private String notifyUser;
 	private String updatedBy;
-	private int lineItemid;
+	private int textItemid;
 	@Column(nullable = false, updatable = false)
 	@CreationTimestamp
 	private Date lastModifiedDate;
@@ -51,12 +51,12 @@ public class MarkingTextItem implements Serializable {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	public int getLineItemnumber() {
-		return lineItemid;
+	public int getTextItemid() {
+		return textItemid;
 	}
 
-	public void setLineItemnumber(int lineItemid) {
-		this.lineItemid = lineItemid;
+	public void setTextItemid(int textItemid) {
+		this.textItemid = textItemid;
 	}
 
 	public int getMarkingId() {
