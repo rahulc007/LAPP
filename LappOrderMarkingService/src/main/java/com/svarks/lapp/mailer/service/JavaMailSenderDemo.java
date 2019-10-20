@@ -1,10 +1,7 @@
 package com.svarks.lapp.mailer.service;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -41,7 +38,7 @@ System.out.println("Mimemessage object created..!");
 		// TODO Auto-generated method stub
 		
 		String subject="Mail Sender example testing..!";
-		String to="shilpaprasad1990@gmail.com";
+		String to="rajeshsavi123@gmail.com";
 		String msg="welcome to java mail sender";
 		JavaMailSenderDemo jmsd = new JavaMailSenderDemo();
 		jmsd.printTestMessage();

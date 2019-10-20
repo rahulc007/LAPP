@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.svarks.lapp.mailer.service.MailerRequest;
 import com.svarks.lapp.mailer.service.SendMailService;
 import com.svarks.lapp.order.common.DataValidation;
+import com.svarks.lapp.order.common.DateUtilCommonSerive;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.order.common.OrderMarkingEmailConstants;
 import com.svarks.lapp.order.dao.service.OrderInfoDao;
@@ -44,6 +45,7 @@ import com.svarks.lapp.order.entity.UserEntity;
 import com.svarks.lapp.order.entity.UserProfileEntity;
 import com.svarks.lapp.order.request.NewUserRequest;
 import com.svarks.lapp.order.response.BaseResponse;
+import com.svarks.lapp.order.response.OrderCountResponse;
 import com.svarks.lapp.order.response.OrderDetailsResponse;
 import com.svarks.lapp.order.response.OrderLineItemResponse;
 import com.svarks.lapp.order.response.OrderStatusResponse;
@@ -82,6 +84,9 @@ public class OrderMarkingAdminController {
 	
 	@Autowired
 	OrderLineItemDao lineItemDao;
+	
+	@Autowired
+	DateUtilCommonSerive commonService;	
 	
 
 	@PostMapping(path = OrderMarkingConstants.UPLOAD_SAP_DATA, produces = OrderMarkingConstants.APPLICATION_JSON, headers = "Content-Type=multipart/form-data")
@@ -477,6 +482,47 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 		}
 		return response;
 	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_DATE, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderDetailsResponse searchByDate(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startDate") String startDate,@RequestParam(name = "endDate") String endDate,@RequestParam(name = "tabType") int tabType) {
+		log.info("calling get My Orders searchByDate ");
+		OrderDetailsResponse response = new OrderDetailsResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
+			Date startDt = commonService.getDateByValue(startDate);
+			Date endDt= commonService.getDateByValue(endDate);
+			if(tabType == 1)
+			response.setOrderInfoList(orderInfoService.getMyOrderByDate(emailId,startDt,endDt));
+			else
+				response.setOrderInfoList(orderInfoService.getMyProcessedOrderByDate(emailId,startDt,endDt));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+		}
+		return response;
+	}
+	
+	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_COUNT, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public OrderCountResponse getOrderCount(@RequestParam(name = "emailId") String emailId) {
+		log.info("calling get My Orders getOrderCount ");
+		OrderCountResponse response = new OrderCountResponse();
+		if (emailId != null && !emailId.isEmpty()) {
+			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setMyOrderCount(orderInfoService.getMyOrderCount(emailId));
+			response.setProcessedOrderCount(orderInfoService.getMyProcessedCount(emailId));
+		}else {
+			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
+			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
+			response.setErrorMessage(OrderMarkingConstants.INVALID_REQUEST);
+		}
+		return response;
+	}
+	
+	
 	
 	@GetMapping(value = OrderMarkingConstants.GET_PROCESSED_ORDER_DETAILS_USER, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public OrderDetailsResponse getCompletedOrderDataByUser(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {

@@ -27,8 +27,13 @@ public interface OrderMarkingConstants {
 	 String GET_PROCESSED_ORDER_DETAILS_ADMIN="/getProcessedOrderByAdmin";
 	 String GET_PROCESSED_ORDER_DETAILS_USER="/getProcessedOrderByUser";
 	 String GET_ORDER_DETAILS_ADMIN="/getOrderDetailsByAdmin";
+	 String GET_ORDER_DETAILS_DATE="/getOrderDetailsByDate";
+	 String GET_ORDER_DETAILS_COUNT="/gerOrderDataCount";
 	 String DOWNLOAD_CUSTOMER_DATA="/downloadCustData";
 	 String DOWNLOAD_SAP_DATA="/downloadSAPData";
+	 String DOWNLOAD_MARKING_DATA="/downloadMarkingText";
+	 String ORDER_DOWNLOAD_MARKING_DATA="/orderDownloadText";
+	 String SAMPLE_DOWNLOAD_MARKING_DATA="/getSampleTemplate";
 	 String GET_USER_PROFILE="/getUserProfile";
 	 String GET_MARKING_TEXT_DETAILS="/getMarkingText";
 	 String GET_ORDER_DETAILS_BY_SALES_GENERIC="/getOrderBySales";
@@ -104,8 +109,12 @@ public interface OrderMarkingConstants {
 		String EXCEL_LOCATION="/home/ubuntu/lappExcel/";
 		String CUSTOMER_DATA_FILE_NAME="CustomerData.xls";
 		String CUSTOMER_SAP_FILE_NAME="SAPData.xls";
+		String CUSTOMER_MARKING_TEXT_NAME="MarkingText.xls";
+		String SALES_CUSTOMER_MARKING_TEXT_NAME="MarkingText_Sales_Order.xls";
+		String SAMPLE_MARKING_TEXT="samplemarkingtext.xlsx";
 		String CUSTOMER_SHEET_NAME="Customer Data";
 		String SAP_SHEET_NAME="SAP Data";
+		String MARKING_TEXT_SHEET_NAME="Marking Text";
 		String EXCEL_CONTENT_TYPE="application/octet-stream";
 		
 		//FTP

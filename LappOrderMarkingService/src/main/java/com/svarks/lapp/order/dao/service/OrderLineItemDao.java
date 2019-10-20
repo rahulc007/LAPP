@@ -15,6 +15,7 @@ import com.svarks.lapp.order.entity.OrderLineItem;
 public interface OrderLineItemDao extends JpaRepository<OrderLineItem, Integer> {
 	
 	List<OrderLineItem> getSalesOrderItem(@Param("salesOrderno") String salesOrderno);
+	List<OrderLineItem> getLineItemBySales(@Param("salesOrderno") String salesOrderno);
 	List<OrderLineItem> getProcessedSalesOrderItem(@Param("salesOrderno") String salesOrderno);
 	boolean findByProductionOrder(@Param("productionOrderno") String productionOrderno );
 	

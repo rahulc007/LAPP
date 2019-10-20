@@ -1,12 +1,29 @@
 package com.svarks.lapp.order.rest.controller;
 
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,7 +42,9 @@ import com.svarks.lapp.order.dao.service.OrderLineItemDao;
 import com.svarks.lapp.order.dao.service.UserAuthDao;
 import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
+import com.svarks.lapp.order.entity.MarkingTextItem;
 import com.svarks.lapp.order.entity.OrderInfo;
+import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserAuthInfo;
 import com.svarks.lapp.order.entity.UserEntity;
 import com.svarks.lapp.order.request.DeleteMarkingTextRequest;
@@ -41,6 +60,7 @@ import com.svarks.lapp.order.response.LoginResponse;
 import com.svarks.lapp.order.response.MarkingTextResponse;
 import com.svarks.lapp.order.response.OrderDetailsResponse;
 import com.svarks.lapp.order.response.UserProfileDetails;
+import com.svarks.lapp.order.service.impl.ExcelFileService;
 
 @RestController
 public class OrderMarkingUserController {
@@ -69,6 +89,9 @@ public class OrderMarkingUserController {
 	OrderLineItemDao lineItemService;
 	
 	@Autowired
+	ExcelFileService excelService;
+	
+	@Autowired
 	MarkingTextDao markingTextService;
 	
 	/**
@@ -78,7 +101,9 @@ public class OrderMarkingUserController {
 	
 	@GetMapping(value = "/ping", produces = OrderMarkingConstants.APPLICATION_JSON)
 	public BaseResponse testRestMessage() {
+		
 		BaseResponse response = new BaseResponse();
+		try {
 		response.setErrorMessage("No Error");
 		response.setSuccessMessage("LAPP ORDER MARKING...!Rest Controller working fine..!");
 		response.setStatusMessage("success");
@@ -92,12 +117,58 @@ public class OrderMarkingUserController {
 		mailRequest.setLabel2("Password:");
 		mailRequest.setP2("lapp@1123");
 		mailRequest.setP("Your registration has been completed successfully..! Please find the login credentials below");
-		mailRequest.setUrl("http://3.17.182.133:8080");
+		mailRequest.setUrl("http://52.206.130.36:8080");
 		mailRequest.setName("Rajesh Gowda");
 		sendMailService.sendMail(mailRequest);
+		
+		//sendMail();
+		}catch(Exception e) {
+			log.error("Exception while sending mail:"+e);
+		}
 		return response;
 	}
+	
+	/*private void sendMail() {
+		log.info("Sendign mail====>");
+		try {
+		 Properties props = new Properties();
+	        props.put("mail.smtp.host", "smtp.gmail.com"); // for gmail use smtp.gmail.com
+	        props.put("mail.smtp.auth", "true");
+	        props.put("mail.debug", "true"); 
+	        props.put("mail.smtp.starttls.enable", "true");
+	        props.put("mail.smtp.port", "587");
+	        props.put("mail.smtp.socketFactory.port", "587");
+	        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+	        props.put("mail.smtp.socketFactory.fallback", "true");
 
+	        Session mailSession = Session.getInstance(props, new javax.mail.Authenticator() {
+
+	            protected PasswordAuthentication getPasswordAuthentication() {
+	                return new PasswordAuthentication("noreplysvarks@gmail.com", "Svarks@123");
+	            }
+	        });
+
+	        mailSession.setDebug(true); // Enable the debug mode
+
+	        Message msg = new MimeMessage( mailSession );
+
+	        //--[ Set the FROM, TO, DATE and SUBJECT fields
+	        msg.setFrom( new InternetAddress( "noreplysvarks@gmail.com" ) );
+	        msg.setRecipients( Message.RecipientType.TO,InternetAddress.parse("rajeshsavi123@gmail.com") );
+	        msg.setSentDate( new Date());
+	        msg.setSubject( "Hello World!" );
+
+	        //--[ Create the body of the mail
+	        msg.setText( "Hello from my first e-mail sent with JavaMail" );
+
+	        //--[ Ask the Transport class to send our mail message
+	        Transport.send( msg );
+
+	    }catch(Exception E){
+	    	log.error( "Oops something has gone pearshaped!"+E);
+	    }
+	}
+*/
 	
 	/**
 	 * Method is used to check whether the given user is valid or not
@@ -475,6 +546,104 @@ public class OrderMarkingUserController {
 		}
 		return response;
 	}
+	
+	@GetMapping(value = OrderMarkingConstants.DOWNLOAD_MARKING_DATA, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public ResponseEntity<ByteArrayResource> downloadMarkingTextData(@RequestParam(name = "lineItemid") int lineItemid,
+			@RequestParam(name = "salesOrderno") String salesOrderno,
+			@RequestParam(name = "productionOrderno") String productionOrderno,@RequestParam(name = "articleno") String articleno) {
+		log.info("calling downloadSapData");
+		try {
+			if (salesOrderno != null && !salesOrderno.isEmpty()) {
+				
+				List<MarkingTextItem> markingTextList = markingTextService.getTextByLineItem(lineItemid);
+
+				if (markingTextList != null && !markingTextList.isEmpty()) {
+					excelService.createMarkingTextDataExcel(markingTextList,salesOrderno,productionOrderno,articleno);
+					String filePath = OrderMarkingConstants.EXCEL_LOCATION
+							+ OrderMarkingConstants.CUSTOMER_MARKING_TEXT_NAME;
+					File file = new File(filePath);
+					// InputStreamResource resource = new InputStreamResource(new
+					// FileInputStream(filePath))
+
+					Path path = Paths.get(file.getAbsolutePath());
+					ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+					HttpHeaders header = new HttpHeaders();
+					header.add(HttpHeaders.CONTENT_DISPOSITION,
+							"attachment; filename=" + OrderMarkingConstants.CUSTOMER_MARKING_TEXT_NAME);
+					header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+					header.add("Pragma", "no-cache");
+					header.add("Expires", "0");
+					return ResponseEntity.ok().headers(header).contentLength(file.length())
+							.contentType(MediaType.parseMediaType(OrderMarkingConstants.EXCEL_CONTENT_TYPE)).body(resource);
+				}
+			}
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
+	
+	@GetMapping(value = OrderMarkingConstants.ORDER_DOWNLOAD_MARKING_DATA, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public ResponseEntity<ByteArrayResource> downloadMarkingBySales(@RequestParam(name = "salesOrderno") String salesOrderno) {
+		log.info("calling download marking text from sales order no");
+		try {
+			if (salesOrderno != null && !salesOrderno.isEmpty()) {
+				
+					excelService.createOrderMarkingTextDataExcel(salesOrderno);
+					String filePath = OrderMarkingConstants.EXCEL_LOCATION
+							+ OrderMarkingConstants.SALES_CUSTOMER_MARKING_TEXT_NAME;
+					File file = new File(filePath);
+					// InputStreamResource resource = new InputStreamResource(new
+					// FileInputStream(filePath))
+
+					Path path = Paths.get(file.getAbsolutePath());
+					ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+					HttpHeaders header = new HttpHeaders();
+					header.add(HttpHeaders.CONTENT_DISPOSITION,
+							"attachment; filename=" + OrderMarkingConstants.SALES_CUSTOMER_MARKING_TEXT_NAME);
+					header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+					header.add("Pragma", "no-cache");
+					header.add("Expires", "0");
+					return ResponseEntity.ok().headers(header).contentLength(file.length())
+							.contentType(MediaType.parseMediaType(OrderMarkingConstants.EXCEL_CONTENT_TYPE)).body(resource);
+			}
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
+
+	@GetMapping(value = OrderMarkingConstants.SAMPLE_DOWNLOAD_MARKING_DATA, produces = OrderMarkingConstants.APPLICATION_JSON)
+	public ResponseEntity<ByteArrayResource> downloadSampleMarkingText() {
+		log.info("calling download marking text from sales order no");
+		try {
+				
+					String filePath = OrderMarkingConstants.EXCEL_LOCATION
+							+ OrderMarkingConstants.SAMPLE_MARKING_TEXT;
+					File file = new File(filePath);
+					// InputStreamResource resource = new InputStreamResource(new
+					// FileInputStream(filePath))
+
+					Path path = Paths.get(file.getAbsolutePath());
+					ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+					HttpHeaders header = new HttpHeaders();
+					header.add(HttpHeaders.CONTENT_DISPOSITION,
+							"attachment; filename=" + OrderMarkingConstants.SAMPLE_MARKING_TEXT);
+					header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+					header.add("Pragma", "no-cache");
+					header.add("Expires", "0");
+					return ResponseEntity.ok().headers(header).contentLength(file.length())
+							.contentType(MediaType.parseMediaType(OrderMarkingConstants.EXCEL_CONTENT_TYPE)).body(resource);
+			}
+		 catch (Exception e) {
+
+		}
+		return null;
+	}
+
+
 	
 	private void sendMarkingTextMail(String emailId) {
 		//Send email

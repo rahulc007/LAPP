@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @NamedQueries({
 		@NamedQuery(name = "SAPFileInfo.findByFileName", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM SAPFileInfo e WHERE e.fileName =:fileName "),
 		@NamedQuery(name = "SAPFileInfo.getSAPDataByUser", query = "SELECT u FROM SAPFileInfo u where u.uploadedBy=:uploadedBy or u.uploadedBy='FTP'"),
+		@NamedQuery(name = "SAPFileInfo.fileInProgress", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM SAPFileInfo e WHERE e.fileStatus =2 "),
 		@NamedQuery(name = "SAPFileInfo.updateFileStatus", query = "UPDATE SAPFileInfo e SET e.fileStatus =:fileStatus,e.orderItemCount=:orderItemCount,e.orderCount=:orderCount where e.fileId =:fileId ") })
 @NamedNativeQuery(name = "SAPFileInfo.getUploadedFile", query = "SELECT * FROM sap_file_info u where u.file_status=1 order by u.created_date asc limit 1 ", resultClass = SAPFileInfo.class)
 

@@ -28,14 +28,16 @@ public class SendMailService {
 			helper.setFrom(OrderMarkingEmailConstants.EMAIL_USER_ID, OrderMarkingEmailConstants.FROM_NAME);
 			helper.setTo(mailRequest.getTo());
 			helper.setSubject(mailRequest.getSubject());
+			mail.setHeader("X-Priority", "1");
 			helper.setText(body, true);
 			sender.send(mail);
+			log.info("Email sent successfully...");
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error("Error sending an Email");
+			log.error("Error sending an Email"+e);
 		}
 
-		System.out.println("Email sent successfully...");
+		
 	}
 
 	/*public void sendTestMail() {

@@ -19,6 +19,7 @@ public interface SAPFileDao extends JpaRepository<SAPFileInfo, Integer>  {
 	boolean findByFileName(@Param("fileName") String fileName );
 	List<SAPFileInfo> getSAPDataByUser(@Param("uploadedBy") String uploadedBy );
 	SAPFileInfo getUploadedFile();
+	boolean fileInProgress();
 	@Transactional
 	@Modifying
 	void updateFileStatus(@Param("fileStatus") int fileStatus,@Param("fileId") int fileId,@Param("orderCount") int orderCount,@Param("orderItemCount") int orderItemCount);

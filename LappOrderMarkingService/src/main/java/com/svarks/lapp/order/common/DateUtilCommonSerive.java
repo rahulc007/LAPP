@@ -1,8 +1,7 @@
 package com.svarks.lapp.order.common;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -13,5 +12,13 @@ public class DateUtilCommonSerive {
 		
 		Date dt = new Date();
 		return dt.getTime();
+	}
+	
+	public Date getDateByValue(String date) {
+		try {
+		return new SimpleDateFormat("yyyy-mm-dd").parse(date);
+		}catch(Exception e) {
+			return new Date();
+		}
 	}
 }

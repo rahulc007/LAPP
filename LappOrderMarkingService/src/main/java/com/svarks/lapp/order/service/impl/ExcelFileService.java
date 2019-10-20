@@ -8,15 +8,35 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.svarks.lapp.mailer.service.SendMailService;
 import com.svarks.lapp.order.common.OrderMarkingConstants;
+import com.svarks.lapp.order.dao.service.MarkingTextDao;
+import com.svarks.lapp.order.dao.service.OrderInfoDao;
+import com.svarks.lapp.order.dao.service.OrderLineItemDao;
+import com.svarks.lapp.order.entity.MarkingTextItem;
+import com.svarks.lapp.order.entity.OrderInfo;
+import com.svarks.lapp.order.entity.OrderLineItem;
 import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserProfileEntity;
 
 @Service
 public class ExcelFileService {
 
+	
+	@Autowired
+	OrderInfoDao orderInfoService;
+	
+	@Autowired
+	SendMailService sendMailService;
+	
+	@Autowired
+	OrderLineItemDao lineItemService;
+	
+	@Autowired
+	MarkingTextDao markingTextService;
 	
 	private static final Logger log = LoggerFactory.getLogger(ExcelFileService.class);
 	
@@ -114,4 +134,97 @@ public void createSAPDataExcel(List<SAPFileInfo> sapFileDataList) {
      }
 		
 }	
+
+public void createMarkingTextDataExcel(List<MarkingTextItem> markingTextList,String salesOrderno,String productionOrderno,String articleno) {
+	
+	try {
+	 String filename = OrderMarkingConstants.EXCEL_LOCATION+OrderMarkingConstants.CUSTOMER_MARKING_TEXT_NAME;
+     HSSFWorkbook workbook = new HSSFWorkbook();
+     HSSFSheet sheet = workbook.createSheet(OrderMarkingConstants.MARKING_TEXT_SHEET_NAME);  
+     int rowIndex=-1;
+
+     HSSFRow rowhead = sheet.createRow((short)++rowIndex);
+     rowhead.createCell(0).setCellValue("Sales Order no");
+     rowhead.createCell(1).setCellValue("Production Order no");
+     rowhead.createCell(2).setCellValue("Marking Text Left (L)");
+     rowhead.createCell(3).setCellValue("Marking Text Right (R)");
+     rowhead.createCell(4).setCellValue("Marking Text Middle (O)");
+     rowhead.createCell(5).setCellValue("Article No");
+     rowhead.createCell(6).setCellValue("Created Date");
+     
+     HSSFRow row = sheet.createRow((short)++rowIndex);
+     for(MarkingTextItem sapFile:markingTextList) {
+     row.createCell(0).setCellValue(salesOrderno);
+     row.createCell(1).setCellValue(productionOrderno);
+     row.createCell(2).setCellValue(sapFile.getLeftText());
+     row.createCell(3).setCellValue(sapFile.getRightText());
+     row.createCell(4).setCellValue(sapFile.getMiddleText()); 
+     row.createCell(5).setCellValue(articleno);
+     row.createCell(6).setCellValue(sapFile.getLastModifiedDate());
+     row = sheet.createRow((short)++rowIndex);
+     }
+
+     FileOutputStream fileOut = new FileOutputStream(filename);
+     workbook.write(fileOut);
+     fileOut.close();
+     workbook.close();
+     log.info("****Customer Data Excel file generereated successfully*****");
+
+ } catch ( Exception ex ) {
+	 log.error("Exception while creating customer excel data==>",ex);
+	 ex.printStackTrace();
+ }
+	
+}
+
+
+public void createOrderMarkingTextDataExcel(String salesOrderno) {
+	
+	try {
+		
+		List<OrderLineItem> orderLineItemList = lineItemService.getLineItemBySales(salesOrderno);
+		 String filename = OrderMarkingConstants.EXCEL_LOCATION+OrderMarkingConstants.SALES_CUSTOMER_MARKING_TEXT_NAME;
+		 HSSFSheet sheet;
+	     HSSFWorkbook workbook = new HSSFWorkbook();
+		for(OrderLineItem lineItem:orderLineItemList) {
+					List<MarkingTextItem> markingTextList = markingTextService.getTextByLineItem(lineItem.getLineItemId());
+				
+					sheet = workbook.createSheet(OrderMarkingConstants.MARKING_TEXT_SHEET_NAME+lineItem.getProductionOrderno());  
+					int rowIndex=-1;
+			
+			     HSSFRow rowhead = sheet.createRow((short)++rowIndex);
+			     rowhead.createCell(0).setCellValue("Sales Order no");
+			     rowhead.createCell(1).setCellValue("Production Order no");
+			     rowhead.createCell(2).setCellValue("Marking Text Left (L)");
+			     rowhead.createCell(3).setCellValue("Marking Text Right (R)");
+			     rowhead.createCell(4).setCellValue("Marking Text Middle (O)");
+			     rowhead.createCell(5).setCellValue("Article No");
+			     rowhead.createCell(6).setCellValue("Created Date");
+			     
+			     HSSFRow row = sheet.createRow((short)++rowIndex);
+			     for(MarkingTextItem sapFile:markingTextList) {
+			     row.createCell(0).setCellValue(salesOrderno);
+			     row.createCell(1).setCellValue(lineItem.getProductionOrderno());
+			     row.createCell(2).setCellValue(sapFile.getLeftText());
+			     row.createCell(3).setCellValue(sapFile.getRightText());
+			     row.createCell(4).setCellValue(sapFile.getMiddleText());
+			     row.createCell(5).setCellValue(lineItem.getArticleNo());
+			     row.createCell(6).setCellValue(sapFile.getLastModifiedDate());
+			     row = sheet.createRow((short)++rowIndex);
+			     }
+
+		}
+     FileOutputStream fileOut = new FileOutputStream(filename);
+     workbook.write(fileOut);
+     fileOut.close();
+     workbook.close();
+     log.info("****Customer Data Excel file generereated successfully*****");
+
+ } catch ( Exception ex ) {
+	 log.error("Exception while creating customer excel data==>",ex);
+	 ex.printStackTrace();
+ }
+	
+}	
+
 }

@@ -1,5 +1,6 @@
 package com.svarks.lapp.order.dao.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,9 +19,13 @@ public interface OrderInfoDao extends JpaRepository<OrderInfo, Integer> {
 	List<OrderInfo> getProcessedOrderByAdmin(@Param("createdBy") String createdBy,@Param("startLimit")int startLimit,@Param("endLimit")int endLimit);
 	List<OrderInfo> getProcessedOrderByUser(@Param("userEmailId") String userEmailId,@Param("startLimit")int startLimit,@Param("endLimit")int endLimit);
 	List<OrderInfo> getMyOrderBySales(@Param("salesOrderno") String salesOrderno,@Param("userEmailId") String userEmailId);
+	List<OrderInfo> getOrderBySales(@Param("salesOrderno") String salesOrderno);
 	List<OrderInfo> getMyOrderBySalesAndAdmin(@Param("salesOrderno") String salesOrderno,@Param("createdBy") String createdBy);
-	
+	List<OrderInfo> getMyOrderByDate(@Param("createdBy") String createdBy,@Param("startDate") Date startDate,@Param("endDate") Date endDate);
+	List<OrderInfo> getMyProcessedOrderByDate(@Param("createdBy") String createdBy,@Param("startDate") Date startDate,@Param("endDate") Date endDate);
 	List<OrderInfo> getMyOrderByProdOrder(@Param("userEmailId") String userEmailId,@Param("productionOrderno") String productionOrderno);
+	int getMyOrderCount(@Param("createdBy") String createdBy);
+	int getMyProcessedCount(@Param("createdBy") String createdBy);
 	List<OrderInfo> getMyOrderByProdOrderAndAdmin(@Param("createdBy") String createdBy,@Param("productionOrderno") String productionOrderno);
 	
 	

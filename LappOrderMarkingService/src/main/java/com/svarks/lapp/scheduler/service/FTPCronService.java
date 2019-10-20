@@ -103,7 +103,7 @@ public class FTPCronService {
 
 	}
 
-	private void executeFTPJob(File sapExcelFile) {
+	private synchronized void executeFTPJob(File sapExcelFile) {
 		DataFormatter formatter = new DataFormatter();
 		try {
 			InputStream inputStream = new FileInputStream(sapExcelFile);

@@ -3,7 +3,6 @@ package com.svarks.lapp.scheduler.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -11,11 +10,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.apache.commons.collections4.ListUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -70,6 +67,7 @@ public class SAPOrderCronJobService {
 		try {
 			//log.info("******************CRON JOB EXECUTING********************************");
 			log.info("Current time is :: " + Calendar.getInstance().getTime());
+			if(!sapFileService.fileInProgress()) {
 			SAPFileInfo sapFileInfo = sapFileService.getUploadedFile();
 			if (sapFileInfo != null) {
 				updateSAPFileStatus(OrderMarkingConstants.IN_PROGRESS, sapFileInfo.getFileId(), 0, 0);
@@ -77,6 +75,7 @@ public class SAPOrderCronJobService {
 
 				//log.info("SAP FILE INFO data==>" + sapFileInfo);
 			}
+		}
 			log.info("******************CRON  JOB ENDS EXECUTING********************************");
 		} catch (Exception e) {
 			e.printStackTrace();
