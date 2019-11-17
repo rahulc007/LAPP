@@ -44,6 +44,7 @@ import com.svarks.lapp.order.dao.service.UserProfileDao;
 import com.svarks.lapp.order.dao.service.UserServiceDao;
 import com.svarks.lapp.order.entity.MarkingTextItem;
 import com.svarks.lapp.order.entity.OrderInfo;
+import com.svarks.lapp.order.entity.OrderLineItem;
 import com.svarks.lapp.order.entity.SAPFileInfo;
 import com.svarks.lapp.order.entity.UserAuthInfo;
 import com.svarks.lapp.order.entity.UserEntity;
@@ -94,6 +95,8 @@ public class OrderMarkingUserController {
 	@Autowired
 	MarkingTextDao markingTextService;
 	
+	@Autowired
+	OrderLineItemDao orderLineItemService;
 	/**
 	 * Test sample get request Rest controller
 	 * @return
@@ -428,7 +431,8 @@ public class OrderMarkingUserController {
 			log.info("marking text is final submit==>"+markingTextRequest.isSubmit());
 			if(markingTextRequest.getMarkingId() !=0) {
 				//lineItemService.updateLineItem(markingTextRequest.isSubmit(),markingTextRequest.getLegsCount(), markingTextRequest.getLineItemId());
-				markingTextService.updateMarkingtext(markingTextRequest.getLeftText(), markingTextRequest.getRightText(), markingTextRequest.getMiddleText(), markingTextRequest.getMarkingId());
+				markingTextService.updateMarkingtext(markingTextRequest.getLeftText(), markingTextRequest.getRightText(), markingTextRequest.getMiddleText(), 
+						markingTextRequest.getRmPartnoLeft(),markingTextRequest.getRmPartnoRight(),markingTextRequest.getRmPartnomiddle(),markingTextRequest.getMarkingId());
 				
 				if(markingTextRequest.isSubmit()) {
 					sendMarkingTextMail(markingTextRequest.getEmailId());
@@ -514,7 +518,7 @@ public class OrderMarkingUserController {
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_BY_SALES_GENERIC, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public OrderDetailsResponse getOderDetailsBySalesOrderNo(@RequestParam(name = "salesOrderno") String salesOrderno,
 			@RequestParam(name = "userEmailId") String userEmailId,
-			@RequestParam(name = "createdBy") String createdBy) {
+			@RequestParam(name = "countryCode") String countryCode) {
 		log.info("calling getUserProfileDetails ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
 		if (salesOrderno != null) {
@@ -522,8 +526,8 @@ public class OrderMarkingUserController {
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			if(userEmailId != null && userEmailId.length() !=0)
 			response.setOrderInfoList(orderInfoService.getMyOrderBySales(salesOrderno,userEmailId));
-			else if(createdBy != null && createdBy.length() !=0) {
-				response.setOrderInfoList(orderInfoService.getMyOrderBySalesAndAdmin(salesOrderno,createdBy));
+			else if(countryCode != null && countryCode.length() !=0) {
+				response.setOrderInfoList(orderInfoService.getMyOrderBySalesAndAdmin(salesOrderno,countryCode));
 			}
 		}
 		return response;
@@ -532,7 +536,7 @@ public class OrderMarkingUserController {
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_BY_PRODUCTIONORDER, produces = OrderMarkingConstants.APPLICATION_JSON)
 	public OrderDetailsResponse getOderDetailsByProductionNo(@RequestParam(name = "productionOrderno") String productionOrderno,
 			@RequestParam(name = "userEmailId") String userEmailId,
-			@RequestParam(name = "createdBy") String createdBy) {
+			@RequestParam(name = "createdBy") String countryCode) {
 		log.info("calling getUserProfileDetails ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
 		if (productionOrderno != null) {
@@ -540,8 +544,8 @@ public class OrderMarkingUserController {
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			if(userEmailId != null && userEmailId.length() !=0)
 			response.setOrderInfoList(orderInfoService.getMyOrderByProdOrder(productionOrderno,userEmailId));
-			else if(createdBy != null && createdBy.length() !=0) {
-				response.setOrderInfoList(orderInfoService.getMyOrderByProdOrderAndAdmin(productionOrderno,createdBy));
+			else if(countryCode != null && countryCode.length() !=0) {
+				response.setOrderInfoList(orderInfoService.getMyOrderByProdOrderAndAdmin(productionOrderno,countryCode));
 			}
 		}
 		return response;
@@ -556,9 +560,9 @@ public class OrderMarkingUserController {
 			if (salesOrderno != null && !salesOrderno.isEmpty()) {
 				
 				List<MarkingTextItem> markingTextList = markingTextService.getTextByLineItem(lineItemid);
-
+				OrderLineItem orderLineItem = orderLineItemService.getLineItemByProductionOrder(productionOrderno);
 				if (markingTextList != null && !markingTextList.isEmpty()) {
-					excelService.createMarkingTextDataExcel(markingTextList,salesOrderno,productionOrderno,articleno);
+					excelService.createMarkingTextDataExcel(markingTextList,salesOrderno,productionOrderno,articleno,orderLineItem);
 					String filePath = OrderMarkingConstants.EXCEL_LOCATION
 							+ OrderMarkingConstants.CUSTOMER_MARKING_TEXT_NAME;
 					File file = new File(filePath);

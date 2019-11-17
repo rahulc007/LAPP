@@ -12,6 +12,40 @@ public class UpdateMarkingTextRequest {
 	private String leftText;
 	private String rightText;
 	private String middleText;
+	private String rmPartnoLeft;
+	private String rmPartnoRight;
+	private String rmPartnomiddle;
+	
+
+	public String getRmPartnoLeft() {
+		return rmPartnoLeft;
+	}
+
+
+	public void setRmPartnoLeft(String rmPartnoLeft) {
+		this.rmPartnoLeft = rmPartnoLeft;
+	}
+
+
+	public String getRmPartnoRight() {
+		return rmPartnoRight;
+	}
+
+
+	public void setRmPartnoRight(String rmPartnoRight) {
+		this.rmPartnoRight = rmPartnoRight;
+	}
+
+
+	public String getRmPartnomiddle() {
+		return rmPartnomiddle;
+	}
+
+
+	public void setRmPartnomiddle(String rmPartnomiddle) {
+		this.rmPartnomiddle = rmPartnomiddle;
+	}
+
 
 	public int getLineItemId() {
 		return lineItemId;

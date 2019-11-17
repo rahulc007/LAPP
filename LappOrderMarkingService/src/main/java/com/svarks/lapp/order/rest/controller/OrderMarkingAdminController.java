@@ -467,14 +467,13 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 	}
 	
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
-	public OrderDetailsResponse getOrderDataByAdmin(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
+	public OrderDetailsResponse getOrderDataByAdmin(@RequestParam(name = "countryCode") String countryCode,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
 		log.info("calling get My Orders DataByAdmin ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
-		if (emailId != null && !emailId.isEmpty()) {
+		if (countryCode != null && !countryCode.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			response.setOrderInfoList(orderInfoService.getOrderByAdmin(emailId,startLimit,endLimit));
+			response.setOrderInfoList(orderInfoService.getOrderByAdmin(countryCode,startLimit,endLimit));
 		}else {
 			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
@@ -484,19 +483,20 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 	}
 	
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_DATE, produces = OrderMarkingConstants.APPLICATION_JSON)
-	public OrderDetailsResponse searchByDate(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startDate") String startDate,@RequestParam(name = "endDate") String endDate,@RequestParam(name = "tabType") int tabType) {
+	public OrderDetailsResponse searchByDate(@RequestParam(name = "countryCode") String countryCode,@RequestParam(name = "startDate") String startDate,@RequestParam(name = "endDate") String endDate,
+			@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit,@RequestParam(name = "tabType") int tabType) {
 		log.info("calling get My Orders searchByDate ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
-		if (emailId != null && !emailId.isEmpty()) {
+		if (countryCode != null && !countryCode.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			Date startDt = commonService.getDateByValue(startDate);
-			Date endDt= commonService.getDateByValue(endDate);
+			//Date startDt = commonService.getDateByValue(startDate);
+			//Date endDt= commonService.getDateByValue(endDate);
 			if(tabType == 1)
-			response.setOrderInfoList(orderInfoService.getMyOrderByDate(emailId,startDt,endDt));
+			response.setOrderInfoList(orderInfoService.getMyOrderByDate(countryCode,startDate,endDate,startLimit,endLimit));
 			else
-				response.setOrderInfoList(orderInfoService.getMyProcessedOrderByDate(emailId,startDt,endDt));
+				response.setOrderInfoList(orderInfoService.getProcessedOrderByDate(countryCode,startDate,endDate,startLimit,endLimit));
 		}else {
 			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
@@ -506,14 +506,14 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 	}
 	
 	@GetMapping(value = OrderMarkingConstants.GET_ORDER_DETAILS_COUNT, produces = OrderMarkingConstants.APPLICATION_JSON)
-	public OrderCountResponse getOrderCount(@RequestParam(name = "emailId") String emailId) {
+	public OrderCountResponse getOrderCount(@RequestParam(name = "countryCode") String countryCode) {
 		log.info("calling get My Orders getOrderCount ");
 		OrderCountResponse response = new OrderCountResponse();
-		if (emailId != null && !emailId.isEmpty()) {
+		if (countryCode != null ) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
-			response.setMyOrderCount(orderInfoService.getMyOrderCount(emailId));
-			response.setProcessedOrderCount(orderInfoService.getMyProcessedCount(emailId));
+			response.setMyOrderCount(orderInfoService.getMyOrderCount(countryCode));
+			response.setProcessedOrderCount(orderInfoService.getMyProcessedCount(countryCode));
 		}else {
 			response.setErrorMessage(OrderMarkingConstants.ERROR_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
@@ -542,14 +542,14 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 	}
 	
 	@GetMapping(value = OrderMarkingConstants.GET_PROCESSED_ORDER_DETAILS_ADMIN, produces = OrderMarkingConstants.APPLICATION_JSON)
-	public OrderDetailsResponse getCompletedOrderDataByAdmin(@RequestParam(name = "emailId") String emailId,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
+	public OrderDetailsResponse getCompletedOrderDataByAdmin(@RequestParam(name = "countryCode") String countryCode,@RequestParam(name = "startLimit") int startLimit,@RequestParam(name = "endLimit") int endLimit) {
 		log.info("calling getAllUserCreationCreatedBy ");
 		OrderDetailsResponse response = new OrderDetailsResponse();
-		if (emailId != null && !emailId.isEmpty()) {
+		if (countryCode != null && !countryCode.isEmpty()) {
 			response.setStatusMessage(OrderMarkingConstants.SUCCESS_MSG);
 			response.setStatus(OrderMarkingConstants.SUCCESS_STATUS);
 			//PageRequest pageable = PageRequest.of(startLimit, endLimit);
-			response.setOrderInfoList(orderInfoService.getProcessedOrderByAdmin(emailId,startLimit,endLimit));
+			response.setOrderInfoList(orderInfoService.getProcessedOrderByAdmin(countryCode,startLimit,endLimit));
 		}
 		return response;
 	}

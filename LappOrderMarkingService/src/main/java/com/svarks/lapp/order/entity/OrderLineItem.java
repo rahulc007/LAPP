@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @NamedQueries({
 	@NamedQuery(name = "OrderLineItem.getSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus = 'Released' or e.productionOrderStatus='Rel') "),
 	@NamedQuery(name = "OrderLineItem.getLineItemBySales", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno"),
+	@NamedQuery(name = "OrderLineItem.getLineItemByProductionOrder", query = "SELECT e FROM OrderLineItem e WHERE e.productionOrderno =:productionOrderno"),
 	@NamedQuery(name = "OrderLineItem.getProcessedSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus != 'Released' or e.productionOrderStatus != 'Rel') "),
 	@NamedQuery(name = "OrderLineItem.findByProductionOrder", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM OrderLineItem e WHERE e.productionOrderno =:productionOrderno"),
 	@NamedQuery(name = "OrderLineItem.updateOrderStatus", query = "UPDATE OrderLineItem e SET e.productionOrderStatus =:productionOrderStatus WHERE e.salesOrderno =:salesOrderno AND e.productionOrderno=:productionOrderno"),

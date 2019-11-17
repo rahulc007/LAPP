@@ -19,7 +19,8 @@ public interface MarkingTextDao extends JpaRepository<MarkingTextItem,Integer>{
 	@Transactional
 	@Modifying
 	void updateMarkingtext(@Param("leftText") String leftText, @Param("rightText") String rightText,
-			@Param("middleText") String middleText, @Param("markingId") int markingId);
+			@Param("middleText") String middleText,@Param("rmPartnoLeft") String rmPartnoLeft, @Param("rmPartnoRight") String rmPartnoRight,
+			@Param("rmPartnomiddle") String rmPartnomiddle, @Param("markingId") int markingId);
 	
 	@Transactional
 	@Modifying

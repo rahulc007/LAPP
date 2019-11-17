@@ -21,7 +21,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "marking_text_item")
 @NamedQueries({
 	@NamedQuery(name = "MarkingTextItem.getTextByLineItem", query = "SELECT e FROM MarkingTextItem e WHERE e.textItemid =:lineItemid "),
-	@NamedQuery(name = "MarkingTextItem.updateMarkingtext", query = "UPDATE MarkingTextItem e SET e.leftText =:leftText,e.rightText =:rightText,e.middleText =:middleText where e.markingId =:markingId "),
+	@NamedQuery(name = "MarkingTextItem.updateMarkingtext", query = "UPDATE MarkingTextItem e SET e.leftText =:leftText,e.rightText =:rightText,e.middleText =:middleText"
+			+ ",e.rmPartnoLeft=:rmPartnoLeft,e.rmPartnoRight=:rmPartnoRight,e.rmPartnomiddle=:rmPartnomiddle where e.markingId =:markingId "),
 	@NamedQuery(name = "MarkingTextItem.deleteMarkingtext", query = "DELETE from MarkingTextItem m where m.markingId =:markingId ") })
 
 
@@ -35,6 +36,9 @@ public class MarkingTextItem implements Serializable {
 	private String leftText;
 	private String rightText;
 	private String middleText;
+	private String rmPartnoLeft;
+	private String rmPartnoRight;
+	private String rmPartnomiddle;
 	private String notifyUser;
 	private String updatedBy;
 	private int textItemid;
@@ -105,6 +109,30 @@ public class MarkingTextItem implements Serializable {
 
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	public String getRmPartnoLeft() {
+		return rmPartnoLeft;
+	}
+
+	public void setRmPartnoLeft(String rmPartnoLeft) {
+		this.rmPartnoLeft = rmPartnoLeft;
+	}
+
+	public String getRmPartnoRight() {
+		return rmPartnoRight;
+	}
+
+	public void setRmPartnoRight(String rmPartnoRight) {
+		this.rmPartnoRight = rmPartnoRight;
+	}
+
+	public String getRmPartnomiddle() {
+		return rmPartnomiddle;
+	}
+
+	public void setRmPartnomiddle(String rmPartnomiddle) {
+		this.rmPartnomiddle = rmPartnomiddle;
 	}
 
 	@Override
