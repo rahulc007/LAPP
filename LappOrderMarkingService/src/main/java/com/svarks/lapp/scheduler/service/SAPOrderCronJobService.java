@@ -118,7 +118,8 @@ public class SAPOrderCronJobService {
 						orderLineItem.setCustomerNo(getCellValue(row.getCell(9),formatter));
 						orderLineItem.setCustomerPartNo(getCellValue(row.getCell(7),formatter));
 						orderLineItem.setDescription(getCellValue(row.getCell(6),formatter));
-						// orderLineItem.setLength(length);
+						orderLineItem.setQuantity(getCellValue(row.getCell(2),formatter));
+						orderLineItem.setLength("0");
 						orderLineItem.setLineItemno(getCellValue(row.getCell(1),formatter));
 						orderLineItem.setModifiedDate(new Date());
 						orderLineItem.setSalesOrderno(getCellValue(row.getCell(0),formatter));

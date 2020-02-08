@@ -167,6 +167,7 @@ public void createMarkingTextDataExcel(List<MarkingTextItem> markingTextList,Str
      row.createCell(6).setCellValue(sapFile.getMiddleText());
      row.createCell(7).setCellValue(sapFile.getRmPartnomiddle());
      row.createCell(8).setCellValue(articleno);
+//     if(orderLineItem != null && orderLineItem.getQuantity() != null)
      row.createCell(9).setCellValue(orderLineItem.getQuantity());
      row = sheet.createRow((short)++rowIndex);
      }
@@ -199,6 +200,9 @@ public void createOrderMarkingTextDataExcel(String salesOrderno) {
 					//log.info("line item id==>"+lineItem.getLineItemId());
 					List<MarkingTextItem> markingTextList = markingTextService.getTextByLineItem(lineItem.getLineItemId());
 					//log.info("line item size==>"+markingTextList.size());
+					log.info("lineItem==>"+lineItem.getQuantity());
+					String articleNo = lineItem.getArticleNo();
+					String quantity = lineItem.getQuantity();
 					if(!markingTextList.isEmpty()) {
 					
 					
@@ -224,8 +228,8 @@ public void createOrderMarkingTextDataExcel(String salesOrderno) {
 					     row.createCell(5).setCellValue(sapFile.getRmPartnoRight());
 					     row.createCell(6).setCellValue(sapFile.getMiddleText());
 					     row.createCell(7).setCellValue(sapFile.getRmPartnoRight());
-					     row.createCell(8).setCellValue(lineItem.getArticleNo());
-					     row.createCell(9).setCellValue(lineItem.getQuantity());
+					     row.createCell(8).setCellValue(articleNo);
+					     row.createCell(9).setCellValue(quantity);
 					     row = sheet.createRow((short)++rowIndex);
 					     }
 					}

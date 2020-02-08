@@ -560,9 +560,9 @@ public class OrderMarkingUserController {
 			if (salesOrderno != null && !salesOrderno.isEmpty()) {
 				
 				List<MarkingTextItem> markingTextList = markingTextService.getTextByLineItem(lineItemid);
-				OrderLineItem orderLineItem = orderLineItemService.getLineItemByProductionOrder(productionOrderno);
+				List<OrderLineItem> orderLineItem = orderLineItemService.getLineItemByProductionOrder(productionOrderno);
 				if (markingTextList != null && !markingTextList.isEmpty()) {
-					excelService.createMarkingTextDataExcel(markingTextList,salesOrderno,productionOrderno,articleno,orderLineItem);
+					excelService.createMarkingTextDataExcel(markingTextList,salesOrderno,productionOrderno,articleno,orderLineItem.get(0));
 					String filePath = OrderMarkingConstants.EXCEL_LOCATION
 							+ OrderMarkingConstants.CUSTOMER_MARKING_TEXT_NAME;
 					File file = new File(filePath);
