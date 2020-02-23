@@ -35,5 +35,5 @@ public interface OrderMarkingEmailConstants {
 		 String FORGOT_PASSWORD_CONTENT="Seems like you forgot your password lapp order marking application.If this is true,Click the below to reset your password";
 		 String FORGOT_PASSWORD_BUTTON="Reset My Password";
 		 String LOGIN_BUTTON_NAME="Login";
-		 String FORGOT_PASSWORD_URL="http://52.206.130.36:8080/lapp/forgot-password?emailId=";
+		 String FORGOT_PASSWORD_URL="http://52.206.130.36:8080/lapp/#/forgot-password?emailId=";
 }
