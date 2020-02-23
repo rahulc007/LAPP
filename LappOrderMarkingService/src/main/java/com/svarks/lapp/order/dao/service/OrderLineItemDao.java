@@ -17,8 +17,8 @@ public interface OrderLineItemDao extends JpaRepository<OrderLineItem, Integer> 
 	List<OrderLineItem> getSalesOrderItem(@Param("salesOrderno") String salesOrderno);
 	List<OrderLineItem> getLineItemBySales(@Param("salesOrderno") String salesOrderno);
 	List<OrderLineItem> getProcessedSalesOrderItem(@Param("salesOrderno") String salesOrderno);
-	List<OrderLineItem> getLineItemByProductionOrder(@Param("productionOrderno") String productionOrderno);
-	boolean findByProductionOrder(@Param("productionOrderno") String productionOrderno );
+	List<OrderLineItem> getLineItemByItemno(@Param("lineItemId") int lineItemId);
+	boolean findByLineItemNo(@Param("lineItemno") String lineItemno );
 	
 	@Transactional
 	 @Modifying
@@ -27,6 +27,6 @@ public interface OrderLineItemDao extends JpaRepository<OrderLineItem, Integer> 
 
 	@Transactional
 	 @Modifying
-	void updateOrderStatus(@Param("productionOrderno") String productionOrderno,@Param("salesOrderno") String salesOrderno,@Param("productionOrderStatus") String productionOrderStatus);
+	void updateOrderStatus(@Param("lineItemno") String lineItemno,@Param("salesOrderno") String salesOrderno,@Param("productionOrderStatus") String productionOrderStatus);
 
 }

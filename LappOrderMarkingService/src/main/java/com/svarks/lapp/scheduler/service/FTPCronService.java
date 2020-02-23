@@ -128,7 +128,7 @@ public class FTPCronService {
 				OrderInfo orderInfo = orderInfoService.getOrderBySalesOrder(getCellValue(row.getCell(0),formatter));
 				if (orderInfo != null && orderInfo.getUserEmailId() != null) {
 					
-					   if(orderItemServie.findByProductionOrder(getCellValue(row.getCell(3),formatter))) {
+					   if(orderItemServie.findByLineItemNo(getCellValue(row.getCell(1),formatter))) {
 						   //Duplicate record exists 
 						   //Skipping duplicate record
 						   continue;
@@ -254,9 +254,8 @@ public class FTPCronService {
 	}
 
 	private boolean isRowValid(XSSFRow row, DataFormatter formatter) {
-		if (getCellValue(row.getCell(3), formatter).isEmpty() || getCellValue(row.getCell(0), formatter).isEmpty()
-				|| getCellValue(row.getCell(8), formatter).isEmpty()
-				|| getCellValue(row.getCell(3), formatter).isEmpty()) {
+		if (getCellValue(row.getCell(1), formatter).isEmpty() || getCellValue(row.getCell(0), formatter).isEmpty()
+				|| getCellValue(row.getCell(8), formatter).isEmpty()) {
 			return false;
 		}
 		return true;

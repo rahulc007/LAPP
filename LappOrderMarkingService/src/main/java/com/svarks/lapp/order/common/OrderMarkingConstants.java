@@ -91,7 +91,7 @@ public interface OrderMarkingConstants {
 		
 		
 		//SAP FILE UPLAOD LOCATION
-		// String EXCEL_UPLOAD="D:/sapFile/";
+		//String EXCEL_UPLOAD="D:/sapFile/";
 		  String EXCEL_UPLOAD="/home/ubuntu/sapFile/";
 		  int  UPLOADED=1;
 		  int  IN_PROGRESS=2;

@@ -154,7 +154,7 @@ public void createMarkingTextDataExcel(List<MarkingTextItem> markingTextList,Str
      rowhead.createCell(7).setCellValue("RM Partno Middle (O)");
      rowhead.createCell(8).setCellValue("Article No");
      rowhead.createCell(9).setCellValue("Quantity");
-     //rowhead.createCell(6).setCellValue("Created Date");
+     rowhead.createCell(10).setCellValue("LineItem");
      
      HSSFRow row = sheet.createRow((short)++rowIndex);
      for(MarkingTextItem sapFile:markingTextList) {
@@ -169,6 +169,7 @@ public void createMarkingTextDataExcel(List<MarkingTextItem> markingTextList,Str
      row.createCell(8).setCellValue(articleno);
 //     if(orderLineItem != null && orderLineItem.getQuantity() != null)
      row.createCell(9).setCellValue(orderLineItem.getQuantity());
+     row.createCell(10).setCellValue(orderLineItem.getLineItemno());
      row = sheet.createRow((short)++rowIndex);
      }
 
@@ -217,6 +218,7 @@ public void createOrderMarkingTextDataExcel(String salesOrderno) {
 					     rowhead.createCell(7).setCellValue("RM Partno Middle (O)");
 					     rowhead.createCell(8).setCellValue("Article No");
 					     rowhead.createCell(9).setCellValue("Quantity");
+					     rowhead.createCell(10).setCellValue("LineItem");
 					     
 					     HSSFRow row = sheet.createRow((short)++rowIndex);
 					     for(MarkingTextItem sapFile:markingTextList) {
@@ -230,6 +232,7 @@ public void createOrderMarkingTextDataExcel(String salesOrderno) {
 					     row.createCell(7).setCellValue(sapFile.getRmPartnoRight());
 					     row.createCell(8).setCellValue(articleNo);
 					     row.createCell(9).setCellValue(quantity);
+					     row.createCell(10).setCellValue(lineItem.getLineItemno());
 					     row = sheet.createRow((short)++rowIndex);
 					     }
 					}

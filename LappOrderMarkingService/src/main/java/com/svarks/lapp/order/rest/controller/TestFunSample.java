@@ -21,6 +21,21 @@ import com.svarks.lapp.order.entity.SAPFileInfo;
 
 public class TestFunSample {
 
+	static int x;
+	 final int y;
+	 
+	TestFunSample(){
+		y=10;
+	}
+	static {
+		
+	}
+	public void getValue() {
+		System.out.println("x="+x+" and y="+y);
+	}
+	public static void add() {
+		System.out.println("x="+x+" and y=");
+	}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		/*String str="rajeshsavi123@gmail.com";
@@ -31,7 +46,14 @@ public class TestFunSample {
 		
 		/*System.out.println("header size==>"+getSAPHeaderList().size());
 		System.out.println("Is Header matches==>"+isHeaderMatches("Artice no"));*/
-		uploadSAPOrderData();
+		String str = "geeks for geeks"; 
+		System.out.println("before swapping==>"+str);
+		char []chrArry = str.toCharArray();
+		chrArry[0]=str.charAt(str.length()-1);
+		chrArry[chrArry.length-1]=str.charAt(0);
+		str=new String(chrArry);
+		System.out.println("After swapping==>"+str);
+		//uploadSAPOrderData();
 	}
 	
 	public static boolean isHeaderMatches(String headerName) {

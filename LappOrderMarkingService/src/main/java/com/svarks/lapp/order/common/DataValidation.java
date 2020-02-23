@@ -19,7 +19,8 @@ public class DataValidation {
 	
 	private List<String> getOrderStatusHeaderList(){
 		List<String> headerList = new LinkedList<String>();
-		headerList.add("ProductionOrder No");
+		//headerList.add("LineItem No");
+		headerList.add("LineItem");
 		headerList.add("Status");
 		headerList.add("SalesOrder No");
 		return headerList;

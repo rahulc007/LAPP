@@ -253,7 +253,7 @@ private void addOrderStatus(MultipartFile orderData,String emailId) {
 }
 	private boolean isRowValid(XSSFRow row,DataFormatter formatter ) {
 		if (getCellValue(row.getCell(0),formatter).isEmpty() || getCellValue(row.getCell(1),formatter).isEmpty()
-				|| getCellValue(row.getCell(1),formatter).isEmpty()) {
+				|| getCellValue(row.getCell(2),formatter).isEmpty()) {
 			return false;
 		}
 		return true;

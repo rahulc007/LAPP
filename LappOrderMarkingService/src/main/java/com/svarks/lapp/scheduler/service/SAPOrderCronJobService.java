@@ -69,6 +69,7 @@ public class SAPOrderCronJobService {
 			log.info("Current time is :: " + Calendar.getInstance().getTime());
 			if(!sapFileService.fileInProgress()) {
 			SAPFileInfo sapFileInfo = sapFileService.getUploadedFile();
+			
 			if (sapFileInfo != null) {
 				updateSAPFileStatus(OrderMarkingConstants.IN_PROGRESS, sapFileInfo.getFileId(), 0, 0);
 				uploadSAPOrderData(sapFileInfo);
@@ -108,11 +109,12 @@ public class SAPOrderCronJobService {
 					OrderInfo orderInfo = orderInfoService.getOrderBySalesOrder(getCellValue(row.getCell(0),formatter));
 					if (orderInfo != null && orderInfo.getUserEmailId() != null) {
 						
-						   if(orderItemServie.findByProductionOrder(getCellValue(row.getCell(3),formatter))) {
+						 if(orderItemServie.findByLineItemNo(getCellValue(row.getCell(3),formatter))) {
 							   //Duplicate record exists 
 							   //Skipping duplicate record
 							   continue;
 						   }
+						
 						orderLineItem.setArticleNo(getCellValue(row.getCell(5),formatter));
 						orderLineItem.setCreatedDate(new Date());
 						orderLineItem.setCustomerNo(getCellValue(row.getCell(9),formatter));
@@ -235,8 +237,8 @@ public class SAPOrderCronJobService {
 		}
 	}
 	private boolean isRowValid(XSSFRow row,DataFormatter formatter ) {
-		if (getCellValue(row.getCell(3),formatter).isEmpty() || getCellValue(row.getCell(0),formatter).isEmpty()
-				|| getCellValue(row.getCell(8),formatter).isEmpty() || getCellValue(row.getCell(3),formatter).isEmpty()) {
+		if (getCellValue(row.getCell(1),formatter).isEmpty() || getCellValue(row.getCell(0),formatter).isEmpty()
+				|| getCellValue(row.getCell(8),formatter).isEmpty()) {
 			return false;
 		}
 		return true;

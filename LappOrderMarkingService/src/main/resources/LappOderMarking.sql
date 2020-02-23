@@ -18,6 +18,13 @@ CREATE TABLE IF NOT EXISTS `user_entity` (
 
 
 
+
+CREATE INDEX sales_orderno
+ON order_info (sales_orderno);
+
+
+
+
 alter table user_entity modify column uid int(11) not null AUTO_INCREMENT;
 alter table `user_entity` modify column `is_email_confirmed` varchar(1) default 0;
 alter table `user_entity` modify column `is_first_time_login` varchar(1) default 0;
@@ -40,6 +47,7 @@ delete from order_info;
 delete from order_line_item;
 delete from order_info_order_line_item;
 delete from marking_text_item;
+delete from order_status_update;
 
 update hibernate_sequence set next_val=5;
  
