@@ -18,10 +18,10 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 @Transactional
 @Table(name = "order_line_item")
 @NamedQueries({
-	@NamedQuery(name = "OrderLineItem.getSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus = 'Released' or e.productionOrderStatus='Rel') "),
+	@NamedQuery(name = "OrderLineItem.getSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus = 'Released' or e.productionOrderStatus='Rel' or e.productionOrderStatus='') "),
 	@NamedQuery(name = "OrderLineItem.getLineItemBySales", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno"),
 	@NamedQuery(name = "OrderLineItem.getLineItemByItemno", query = "SELECT e FROM OrderLineItem e WHERE e.lineItemId =:lineItemId"),
-	@NamedQuery(name = "OrderLineItem.getProcessedSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus != 'Released' or e.productionOrderStatus != 'Rel') "),
+	@NamedQuery(name = "OrderLineItem.getProcessedSalesOrderItem", query = "SELECT e FROM OrderLineItem e WHERE e.salesOrderno =:salesOrderno and (e.productionOrderStatus != 'Released' and e.productionOrderStatus != 'Rel' or e.productionOrderStatus='') "),
 	@NamedQuery(name = "OrderLineItem.findByLineItemNo", query = "SELECT CASE WHEN (COUNT(*) >0) THEN TRUE ELSE FALSE END FROM OrderLineItem e WHERE e.lineItemno =:lineItemno"),
 	@NamedQuery(name = "OrderLineItem.updateOrderStatus", query = "UPDATE OrderLineItem e SET e.productionOrderStatus =:productionOrderStatus WHERE e.salesOrderno =:salesOrderno AND e.lineItemno=:lineItemno"),
 	@NamedQuery(name = "OrderLineItem.updateLineItem", query = "UPDATE OrderLineItem e SET e.isSubmit =:isSubmit,e.legsCount=:legsCount WHERE e.lineItemId =:lineItemId ") })

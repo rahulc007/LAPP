@@ -120,7 +120,7 @@ public class OrderMarkingUserController {
 		mailRequest.setLabel2("Password:");
 		mailRequest.setP2("lapp@1123");
 		mailRequest.setP("Your registration has been completed successfully..! Please find the login credentials below");
-		mailRequest.setUrl("http://52.206.130.36:8080");
+		mailRequest.setUrl("http://34.202.67.90");
 		mailRequest.setName("Rajesh Gowda");
 		sendMailService.sendMail(mailRequest);
 		

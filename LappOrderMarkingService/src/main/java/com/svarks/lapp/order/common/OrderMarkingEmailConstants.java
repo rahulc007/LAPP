@@ -8,8 +8,11 @@ public interface OrderMarkingEmailConstants {
 		 String LOGIN_BUTTON="Login";
 		 String USERNAME="Username:";
 		 String PASSWORD="Password:";
-		 String LOGIN_URL="http://52.206.130.36:8080/lapp";
-		 
+		 //TEST
+		 //String LOGIN_URL="http://52.206.130.36:8080/lapp";
+		 //PROD
+		 String LOGIN_URL="http://34.202.67.90/lapp";
+		
 		 String REGISTER_SUCCESS_MESSAGE="Your registration has been completed successfully..! Please find the login credentials below";
 		 
 		 
@@ -35,5 +38,7 @@ public interface OrderMarkingEmailConstants {
 		 String FORGOT_PASSWORD_CONTENT="Seems like you forgot your password lapp order marking application.If this is true,Click the below to reset your password";
 		 String FORGOT_PASSWORD_BUTTON="Reset My Password";
 		 String LOGIN_BUTTON_NAME="Login";
-		 String FORGOT_PASSWORD_URL="http://52.206.130.36:8080/lapp/#/forgot-password?emailId=";
+		 //Test
+		// String FORGOT_PASSWORD_URL="http://52.206.130.36:8080/lapp/#/forgot-password?emailId=";
+		 String FORGOT_PASSWORD_URL="http://34.202.67.90/lapp/#/forgot-password?emailId=";
 }

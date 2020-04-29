@@ -124,7 +124,6 @@ public class FTPCronService {
 				registerNewUser(row, formatter, OrderMarkingConstants.ADMIN_EMAIL_ID);
 				
 				OrderLineItem orderLineItem = new OrderLineItem();
-				orderItemCount++;
 				OrderInfo orderInfo = orderInfoService.getOrderBySalesOrder(getCellValue(row.getCell(0),formatter));
 				if (orderInfo != null && orderInfo.getUserEmailId() != null) {
 					
@@ -143,7 +142,15 @@ public class FTPCronService {
 					orderLineItem.setModifiedDate(new Date());
 					orderLineItem.setSalesOrderno(getCellValue(row.getCell(0),formatter));
 					orderLineItem.setProductionOrderno(getCellValue(row.getCell(3),formatter));
-					orderLineItem.setProductionOrderStatus(getCellValue(row.getCell(4),formatter));
+					String orderStatus="";
+					if(getCellValue(row.getCell(4),formatter).equalsIgnoreCase("Released")) {
+						orderStatus="Released";
+					}else if(getCellValue(row.getCell(4),formatter).equalsIgnoreCase("Rel")){
+						orderStatus="Rel";
+					}else {
+						orderStatus=getCellValue(row.getCell(4),formatter);
+					}
+					orderLineItem.setProductionOrderStatus(orderStatus);
 					orderLineItem.setSubmit(false);
 					orderLineItem.setUpdatedBy("");
 					List<OrderLineItem> orderLineItemList = orderInfo.getOrderLineItem();
@@ -159,6 +166,7 @@ public class FTPCronService {
 						//orderInfoService.save(orderInfo);
 						//orderLineItemList.clear();
 					//}
+					orderItemCount++;
 				} else {
 					 orderInfo = new OrderInfo();
 					List<OrderLineItem> lineItemList = new LinkedList<>();
@@ -180,12 +188,22 @@ public class FTPCronService {
 					orderLineItem.setModifiedDate(new Date());
 					orderLineItem.setSalesOrderno(getCellValue(row.getCell(0),formatter));
 					orderLineItem.setProductionOrderno(getCellValue(row.getCell(3),formatter));
-					orderLineItem.setProductionOrderStatus(getCellValue(row.getCell(4),formatter));
+					String orderStatus="";
+					if(getCellValue(row.getCell(4),formatter).equalsIgnoreCase("Released")) {
+						orderStatus="Released";
+					}else if(getCellValue(row.getCell(4),formatter).equalsIgnoreCase("Rel")){
+						orderStatus="Rel";
+					}else {
+						orderStatus=getCellValue(row.getCell(4),formatter);
+					}
+					orderLineItem.setProductionOrderStatus(orderStatus);
+					//orderLineItem.setProductionOrderStatus(getCellValue(row.getCell(4),formatter));
 					orderLineItem.setUpdatedBy("");
 					lineItemList.add(orderLineItem);
 					orderInfo.setOrderLineItem(lineItemList);
 					orderInfoService.save(orderInfo);
 					log.info("New Order Created Sales Order no:==>" + orderInfo.getSalesOrderno());
+					orderItemCount++;
 				}
 				/*
 				 * log.info("Cell 0==>" + row.getCell(0)); log.info("Cell 1==>" +
