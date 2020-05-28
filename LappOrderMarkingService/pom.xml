@@ -14,7 +14,7 @@
 	<version>1.1.0</version>
 	<name>LappOrderMarkingService</name>
 	<description>Lapp Cable Marking</description>
-
+		<packaging>war</packaging>
 	<properties>
 		<java.version>1.8</java.version>
 		 <start-class>com.svarks.lapp.LappOrderMarkingServiceApplication</start-class>
@@ -35,6 +35,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<!-- <scope>runtime</scope> -->
 		</dependency>
+		
+		<dependency>
+  		 <groupId>org.springframework.boot</groupId>
+  		 <artifactId>spring-boot-starter-tomcat</artifactId>
+ 		  <scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -46,7 +52,7 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>3.15</version>
 		</dependency>
-
+		
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -70,15 +76,15 @@
 
 	</dependencies>
 	
-	<packaging>war</packaging>
-
 	<build>
+		<finalName>OrderMarking</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+	
 	</build>
 
 </project>
