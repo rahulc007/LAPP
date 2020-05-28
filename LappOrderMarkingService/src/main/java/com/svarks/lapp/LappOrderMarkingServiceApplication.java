@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.scheduler.service.FTPCronService;
@@ -18,7 +19,7 @@ import com.svarks.lapp.scheduler.service.SAPOrderCronJobService;
 @EntityScan(OrderMarkingConstants.ENTITY_PACKAGE)
 @EnableJpaRepositories(OrderMarkingConstants.BASE_PACKAGE_NAME)
 @EnableScheduling
-public class LappOrderMarkingServiceApplication   {
+public class LappOrderMarkingServiceApplication extends SpringBootServletInitializer   {
 	
 	
 	
@@ -45,6 +46,10 @@ public class LappOrderMarkingServiceApplication   {
 		ftpService.executeFTPOperation();
 	}
 	
+	@Override
+  	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(Application.class);
+       }
 
 /*	@Bean
 	public JavaMailSender getJavaMailSender() {
