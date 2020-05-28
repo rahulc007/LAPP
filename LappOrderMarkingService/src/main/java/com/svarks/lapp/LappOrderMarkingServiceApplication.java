@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import com.svarks.lapp.order.common.OrderMarkingConstants;
 import com.svarks.lapp.scheduler.service.FTPCronService;
@@ -45,11 +46,10 @@ public class LappOrderMarkingServiceApplication extends SpringBootServletInitial
 	public void ftpJob() {
 		ftpService.executeFTPOperation();
 	}
-	
-	@Override
-  	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(Application.class);
-       }
+	 @Override
+	  protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+	      return builder.sources(LappOrderMarkingServiceApplication.class);
+	  }
 
 /*	@Bean
 	public JavaMailSender getJavaMailSender() {
